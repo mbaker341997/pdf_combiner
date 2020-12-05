@@ -1,8 +1,0 @@
--Select a folder containing pdfs
--Enter a destination and filename
--Combines all pdfs into one file
--that file is saved to that destination
--non-pdf files are called out and skipped
--give option to overwrite files or add copy
-
--aggregate subfolders (take a folder with subfolders in it, combine each subfolder's pdf into one pdf with that folder's filename)
