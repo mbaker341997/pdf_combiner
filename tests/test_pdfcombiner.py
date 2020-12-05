@@ -21,12 +21,6 @@ TEST_SUB_DIR_3_FILENAME = 'sub_dir_3.pdf'
 
 TEST_OUTPUT_DIR = 'tests/output_pdfs'
 
-TEST_INPUT_PDFS = 'input_pdfs.pdf'
-TEST_EMPTY_DIR_PDF = 'empty_dir.pdf'
-TEST_SUB_DIR_1 = 'sub_dir_1.pdf'
-TEST_SUB_DIR_2 = 'sub_dir_2.pdf'
-TEST_SUB_DIR_3 = 'sub_dir_3.pdf'
-
 
 # Integration tests to verify it works correctly
 def test_get_child_dirs():
