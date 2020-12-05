@@ -3,17 +3,18 @@ import tkinter as tk
 from os import path
 from tkinter import filedialog, messagebox, ttk
 
-TITLE = 'PDF Combiner'
+TITLE = 'Pdf Combiner'
 SELECT_MESSAGE = 'Select'
 SELECT_SOURCE_FOLDER_MESSAGE = 'Select Source Folder'
 SELECT_DESTINATION_FOLDER_MESSAGE = 'Select Output Folder'
-WINDOW_WIDTH = 50
-COMPONENT_HEIGHT = 5
 TEXT_KEY = 'text'
 PAD_X_AMOUNT = 10
 PAD_Y_AMOUNT = 5
 ENTRY_WIDTH = 75
 SOURCE_IID = 'source'
+WINDOW_BASE_WIDTH = 855
+WINDOW_BASE_HEIGHT = 393
+TITLE_STYLE_KEY = "CombinerTitle.TLabel"
 
 
 class PdfCombiner(tk.Frame):
@@ -26,18 +27,19 @@ class PdfCombiner(tk.Frame):
         """
         super().__init__(parent)
         self.pack(fill=tk.BOTH, expand=True)
-
-        # set parent's title
         parent.title(TITLE)
 
+        # styling
+        self.style = ttk.Style()
+        self.style.configure(TITLE_STYLE_KEY, font='helvetica 24')
+
         # TODO: file icon
-        # TODO: set minimum width/height
 
         # Top Area - title and help button
         self.top_frame = ttk.Frame(self)
-        self.top_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
+        self.top_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT*3)
         # title labeling
-        self.title_label = ttk.Label(self.top_frame, text=TITLE)
+        self.title_label = ttk.Label(self.top_frame, text=TITLE, style=TITLE_STYLE_KEY)
         self.title_label.pack(side=tk.LEFT)
         # TODO: help dialog
         self.help_button = ttk.Button(self.top_frame, text="Help!")
@@ -63,15 +65,17 @@ class PdfCombiner(tk.Frame):
         self.get_directory_selection_row(self.destination_directory_var,
                                          'Destination Folder:',
                                          SELECT_DESTINATION_FOLDER_MESSAGE)
-        # Get destination folder with pdfs
-
+        # Combine pdfs button
         self.combinePdfsButton = ttk.Button(
             self,
             text='Combine PDFs',
             command=self.combine_the_pdfs
         )
         self.combinePdfsButton.pack(fill=tk.BOTH, side=tk.BOTTOM, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
-        # TODO: open results folder
+
+        # set min size
+        parent.update()
+        parent.minsize(parent.winfo_width(), parent.winfo_height())
 
     """
     Build a directory selection row.
@@ -119,6 +123,7 @@ class PdfCombiner(tk.Frame):
             if len(result_files) > 0:
                 messagebox.showinfo("Success!", "We have successfully written combined pdf files to: {}".
                                     format(self.destination_directory_var.get()))
+                # TODO: open results folder
             else:
                 messagebox.showwarning("No pdfs found!", "We were not able to find any pdfs to combine in {}"
                                        .format(self.source_directory_var.get()))
@@ -158,6 +163,6 @@ class PdfCombiner(tk.Frame):
                                              text=path.split(child_pdf)[1])
 
 
-window = tk.Tk()
+window = tk.Tk(className=TITLE)
 pdf_combiner_gui = PdfCombiner(parent=window)
 pdf_combiner_gui.mainloop()
