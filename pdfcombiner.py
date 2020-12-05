@@ -1,7 +1,18 @@
 import os
-from PyPDF2 import PdfFileMerger, utils
+from PyPDF2 import PdfFileMerger
 
 PDF_EXTENSION = ".pdf"
+
+
+# returns filenames with path of all .pdf files in the given directory
+def get_pdfs_in_dir(directory):
+    files = []
+    with os.scandir(directory) as it:
+        for entry in it:
+            if entry.is_file():
+                if os.path.splitext(entry.name)[1] == PDF_EXTENSION:
+                    files.append(os.path.join(directory, entry.name))
+    return files
 
 
 def get_child_dirs(root_directory):
@@ -18,18 +29,11 @@ def combine_pdfs_in_directory(source_directory, destination_path):
     merger = PdfFileMerger()
     output_filename = "{}.pdf".format(os.path.split(source_directory)[1])
     print("Reading pdfs from: {}".format(source_directory))
-    num_files_merged = 0  # used to track if we have files to merge
-    with os.scandir(source_directory) as it:
-        for entry in it:
-            if entry.is_file():
-                if os.path.splitext(entry.name)[1] == PDF_EXTENSION:
-                    try:
-                        print("Merging file {}".format(entry.name))
-                        merger.append(os.path.join(source_directory, entry.name))
-                        num_files_merged += 1
-                    except utils.PyPdfError:
-                        print("Error combining pdfs: {}".format(output_filename))
-    if num_files_merged > 0:
+    pdfs = get_pdfs_in_dir(source_directory)
+    for pdf in pdfs:
+        print("Merging file {}".format(pdf))
+        merger.append(pdf)
+    if len(pdfs) > 0:
         print("Writing combined file: {}".format(output_filename))
         with open(os.path.join(destination_path, output_filename), "wb") as output_file:
             merger.write(output_file)

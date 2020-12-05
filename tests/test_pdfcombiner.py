@@ -7,10 +7,10 @@ import shutil
 TEST_INPUT_DIR = 'tests/input_pdfs'
 TEST_INPUT_PDFS_FILENAME = 'input_pdfs.pdf'
 
-TEST_EMPTY_PATH = 'tests/input_pdfs/sub_dir_2'
+TEST_EMPTY_PATH = 'tests/input_pdfs/empty_dir'
 TEST_EMPTY_DIR_FILENAME = 'empty_dir.pdf'
 
-TEST_SUB_DIR_1_PATH = 'tests/input_pdfs/sub_dir_2'
+TEST_SUB_DIR_1_PATH = 'tests/input_pdfs/sub_dir_1'
 TEST_SUB_DIR_1_FILENAME = 'sub_dir_1.pdf'
 
 TEST_SUB_DIR_2_PATH = 'tests/input_pdfs/sub_dir_2'
@@ -22,7 +22,32 @@ TEST_SUB_DIR_3_FILENAME = 'sub_dir_3.pdf'
 TEST_OUTPUT_DIR = 'tests/output_pdfs'
 
 
-# Integration tests to verify it works correctly
+def test_get_pdfs_in_dir_base_case():
+    pdfs = pdfcombiner.get_pdfs_in_dir(TEST_SUB_DIR_3_PATH)
+    assert len(pdfs) == 1
+    assert os.path.join(TEST_SUB_DIR_3_PATH, 'testpdf7.pdf') in pdfs
+
+
+def test_get_pdfs_in_dir_empty():
+    pdfs = pdfcombiner.get_pdfs_in_dir(TEST_EMPTY_PATH)
+    assert len(pdfs) == 0
+
+
+def test_get_pdfs_in_dir_does_not_include_sub_dirs():
+    pdfs = pdfcombiner.get_pdfs_in_dir(TEST_INPUT_DIR)
+    assert len(pdfs) == 3
+    assert os.path.join(TEST_INPUT_DIR, 'testpdf1.pdf') in pdfs
+    assert os.path.join(TEST_INPUT_DIR, 'testpdf2.pdf') in pdfs
+    assert os.path.join(TEST_INPUT_DIR, 'napoleon.pdf') in pdfs
+
+
+def test_get_pdfs_in_dir_does_not_include_non_pdfs():
+    pdfs = pdfcombiner.get_pdfs_in_dir(TEST_SUB_DIR_1_PATH)
+    assert len(pdfs) == 2
+    assert os.path.join(TEST_SUB_DIR_1_PATH, 'testpdf3.pdf') in pdfs
+    assert os.path.join(TEST_SUB_DIR_1_PATH, 'testpdf4.pdf') in pdfs
+
+
 def test_get_child_dirs():
     child_directories = pdfcombiner.get_child_dirs(TEST_INPUT_DIR)
     assert len(child_directories) == 3
