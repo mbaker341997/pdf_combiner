@@ -1,0 +1,5 @@
+-create proof-of-concept script
+-organize script into formal input/output model with tests
+-create a GUI mock-up
+-implement GUI
+-make installable
