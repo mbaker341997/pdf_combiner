@@ -2,16 +2,6 @@
 
 Uses tkinter and PyPDF2
 
-Activate the venv 
-```
-. venv/bin/activate
-```
-
-then run the files
-
-Right now it's just a playground
-
-
 Requirements: 
 * Given a folder filled with pdfs, merge all the pdfs into one 
 * Merged pdf filename will be the same as the directory name (so all the 
@@ -55,3 +45,25 @@ python -m pytest -s
 
 This will combine the test pdfs, validate that the page amounts are what 
 we want, and then clean up. 
+
+To run the gui, just do 
+```
+python gui.py
+```
+
+## Next Steps
+
+Styling Changes:
+* Add icon photo
+* Add preview of files that will be combined (treeView)
+* display of the combined files (treeView)
+
+Convenience changes
+* Add a help dialog box to explain what's happening 
+* Add a CLI execution as an alternative to the GUI 
+
+Distribution
+* Make sure the setup.py is set up correctly so that module is installable
+on other machines
+* create linux exe 
+* create windows exe 

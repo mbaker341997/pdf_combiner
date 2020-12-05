@@ -47,12 +47,22 @@ def combine_all_pdfs(root_directory, destination_path):
     # Create the destination path if it doesn't exist
     if not os.path.exists(destination_path):
         os.makedirs(destination_path)
+
     print("Combining all pdfs in {}".format(root_directory))
-    result_files = [combine_pdfs_in_directory(root_directory, destination_path)]
+    result_files = []
+
+    # combine pdfs in root
+    root_file = combine_pdfs_in_directory(root_directory, destination_path)
+    if root_file:
+        result_files.append(root_file)
+
+    # combine pdfs in first layer of children
     for child_dir in get_child_dirs(root_directory):
         result_file = combine_pdfs_in_directory(child_dir, destination_path)
         if result_file:
             result_files.append(result_file)
+
+    # print results to stdout
     print("Finished combining all pdfs. Written files: ")
     for result_file in result_files:
         print("* {}".format(result_file))
