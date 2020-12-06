@@ -38,6 +38,7 @@ and finding no pdfs, we don't dig deeper. This is to avoid wasting
 time going down a rabbit hole. I'm willing to change this in the
 future perhaps, but for now keeping it simple.
 
+DEMO VIDEO: [https://www.youtube.com/watch?v=4EEbaHv9m1o](https://www.youtube.com/watch?v=4EEbaHv9m1o)
 ## Running
 Install the requirements:
 ```
