@@ -57,6 +57,9 @@ def test_get_child_dirs():
 
 
 def test_combine_all_pdfs():
+    # Create the destination path if it doesn't exist
+    if not os.path.exists(TEST_OUTPUT_DIR):
+        os.makedirs(TEST_OUTPUT_DIR)
     # I could programmatically create all my test input files, but ehhh I think it's easier to understand with the
     # files just there to be looked at
     result_files = pdfcombiner.combine_all_pdfs(TEST_INPUT_DIR, TEST_OUTPUT_DIR)

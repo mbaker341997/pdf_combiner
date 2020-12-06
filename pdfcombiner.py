@@ -1,5 +1,5 @@
-import os
 from PyPDF2 import PdfFileMerger
+from os import path, scandir
 
 PDF_EXTENSION = ".pdf"
 
@@ -7,27 +7,27 @@ PDF_EXTENSION = ".pdf"
 # returns filenames with path of all .pdf files in the given directory
 def get_pdfs_in_dir(directory):
     files = []
-    with os.scandir(directory) as it:
+    with scandir(directory) as it:
         for entry in it:
             if entry.is_file():
-                if os.path.splitext(entry.name)[1] == PDF_EXTENSION:
-                    files.append(os.path.join(directory, entry.name))
+                if path.splitext(entry.name)[1] == PDF_EXTENSION:
+                    files.append(path.join(directory, entry.name))
     return files
 
 
 def get_child_dirs(root_directory):
     child_dirs = []
-    with os.scandir(root_directory) as it:
+    with scandir(root_directory) as it:
         for entry in it:
             if entry.is_dir():
-                child_dirs.append(os.path.join(root_directory, entry.name))
+                child_dirs.append(path.join(root_directory, entry.name))
     return child_dirs
 
 
 # Given a directory, find all its pdfs and merge
 def combine_pdfs_in_directory(source_directory, destination_path):
     merger = PdfFileMerger()
-    output_filename = "{}.pdf".format(os.path.split(source_directory)[1])
+    output_filename = "{}.pdf".format(path.split(source_directory)[1])
     print("Reading pdfs from: {}".format(source_directory))
     pdfs = get_pdfs_in_dir(source_directory)
     for pdf in pdfs:
@@ -35,7 +35,7 @@ def combine_pdfs_in_directory(source_directory, destination_path):
         merger.append(pdf)
     if len(pdfs) > 0:
         print("Writing combined file: {}".format(output_filename))
-        with open(os.path.join(destination_path, output_filename), "wb") as output_file:
+        with open(path.join(destination_path, output_filename), "wb") as output_file:
             merger.write(output_file)
         print("Successfully written: {}".format(output_filename))
         result = output_filename
@@ -48,10 +48,6 @@ def combine_pdfs_in_directory(source_directory, destination_path):
 
 # given a root directory, combine all the pdfs in its sub directory
 def combine_all_pdfs(root_directory, destination_path):
-    # Create the destination path if it doesn't exist
-    if not os.path.exists(destination_path):
-        os.makedirs(destination_path)
-
     print("Combining all pdfs in {}".format(root_directory))
     result_files = []
 

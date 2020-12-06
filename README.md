@@ -2,7 +2,8 @@
 
 Uses tkinter and PyPDF2
 
-Requirements: 
+## Purpose
+Purpose: 
 * Given a folder filled with pdfs, merge all the pdfs into one 
 * Merged pdf filename will be the same as the directory name (so all the 
 pdfs in folder A will be merged into A.pdf)
@@ -37,8 +38,22 @@ and finding no pdfs, we don't dig deeper. This is to avoid wasting
 time going down a rabbit hole. I'm willing to change this in the 
 future perhaps, but for now keeping it simple. 
 
-## Testing
-From project root, run
+## Running
+First, it's highly recommended that you have a virtual environment set up. 
+
+Install the requirements: 
+```
+pip install -r requirements.txt
+```
+
+Then execute the file for the GUI:
+```
+python gui.py
+```
+
+I'm working on getting some executables set up. 
+
+For testing, execute the following from the project root.
 ```
 python -m pytest -s
 ```
@@ -46,18 +61,19 @@ python -m pytest -s
 This will combine the test pdfs, validate that the page amounts are what 
 we want, and then clean up. 
 
-To run the gui, just do 
-```
-python gui.py
-```
 
 ## Next Steps
-
-Styling Changes:
 * Add icon photo
-
-Distribution
-* Make sure the setup.py is set up correctly so that module is installable
-on other machines
-* create linux exe 
 * create windows exe 
+* provide links to the executables
+
+
+###Distribution
+I've been using pyinstaller to create executables. Right now, the executable
+I'm creating on ubuntu works when ran from the command line, but double-clicking
+through the file explorer gives the following notification:
+```
+./pdfcombiner
+```
+Still trying to sort this one out...
+
