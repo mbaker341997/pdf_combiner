@@ -4,23 +4,31 @@ import PyPDF2
 import shutil
 
 
-TEST_INPUT_DIR = 'tests/input_pdfs'
+TEST_INPUT_DIR = os.path.join('tests', 'input_pdfs')
 TEST_INPUT_PDFS_FILENAME = 'input_pdfs.pdf'
 
-TEST_EMPTY_PATH = 'tests/input_pdfs/empty_dir'
+TEST_EMPTY_PATH = os.path.join('tests', 'input_pdfs', 'empty_dir')
 TEST_EMPTY_DIR_FILENAME = 'empty_dir.pdf'
 
-TEST_SUB_DIR_1_PATH = 'tests/input_pdfs/sub_dir_1'
+TEST_SUB_DIR_1_PATH = os.path.join('tests', 'input_pdfs', 'sub_dir_1')
 TEST_SUB_DIR_1_FILENAME = 'sub_dir_1.pdf'
 
-TEST_SUB_DIR_2_PATH = 'tests/input_pdfs/sub_dir_2'
+TEST_SUB_DIR_2_PATH = os.path.join('tests', 'input_pdfs', 'sub_dir_2')
 TEST_SUB_DIR_2_FILENAME = 'sub_dir_2.pdf'
 
-TEST_SUB_DIR_3_PATH = 'tests/input_pdfs/sub_dir_2/sub_dir_3'
+TEST_SUB_DIR_3_PATH = os.path.join('tests', 'input_pdfs', 'sub_dir_2', 'sub_dir_3')
 TEST_SUB_DIR_3_FILENAME = 'sub_dir_3.pdf'
 
-TEST_OUTPUT_DIR = 'tests/output_pdfs'
+TEST_OUTPUT_DIR = os.path.join('tests', 'output_pdfs')
 
+def setup_function():
+    # Create the destination if it doesn't exist
+    if not os.path.exists(TEST_OUTPUT_DIR):
+        os.makedirs(TEST_OUTPUT_DIR)
+
+    # Create the empty directory if it doesn't exist
+    if not os.path.exists(TEST_EMPTY_PATH):
+        os.makedirs(TEST_EMPTY_PATH)
 
 def test_get_pdfs_in_dir_base_case():
     pdfs = pdfcombiner.get_pdfs_in_dir(TEST_SUB_DIR_3_PATH)
@@ -57,9 +65,6 @@ def test_get_child_dirs():
 
 
 def test_combine_all_pdfs():
-    # Create the destination path if it doesn't exist
-    if not os.path.exists(TEST_OUTPUT_DIR):
-        os.makedirs(TEST_OUTPUT_DIR)
     # I could programmatically create all my test input files, but ehhh I think it's easier to understand with the
     # files just there to be looked at
     result_files = pdfcombiner.combine_all_pdfs(TEST_INPUT_DIR, TEST_OUTPUT_DIR)
@@ -85,6 +90,8 @@ def test_combine_all_pdfs():
     # sub_dir_3 does not exist, we don't check grandchildren
     assert TEST_SUB_DIR_3_FILENAME not in result_files
 
+
+def teardown_function():
     # clean up our output directory
     shutil.rmtree(TEST_OUTPUT_DIR)
 
@@ -98,4 +105,3 @@ def validate_pdf_file(file_name, num_pages):
         pdf = PyPDF2.PdfFileReader(read_pdf)
         # it has the number pages we expect
         assert pdf.getNumPages() == num_pages
-
