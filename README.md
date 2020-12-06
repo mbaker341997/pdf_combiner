@@ -58,29 +58,10 @@ Then execute the file for the GUI:
 python pdfcombiner/gui.py
 ```
 
-I'm working on getting some executables set up.
-
-
-## Next Steps
-* provide links to the executables
-
-
-### Install
-Have been working on creating executables via pyinstaller
-
-## Windows
+I also made an executable for windows via [pyinstaller](https://pyinstaller.readthedocs.io/en/stable/usage.html_)
 ```
 pyinstaller gui.py -n pdfcombiner -F -w -i assets\pdfc_icon.ico
 ```
 
-## Mac
-Coming soon?
-
-## Linux
-I've been using pyinstaller to create executables. Right now, the executable
-I'm creating on ubuntu works when ran from the command line, but double-clicking
-through the file explorer gives the following notification:
-```
-./pdfcombiner
-```
-Still trying to sort this one out...
+Download link (you'll need to request access and your antivirus might complain):
+https://drive.google.com/file/d/123BN_fhBnOT-5wTWS9F-vA9a3g-S4G7m/view?usp=sharing
