@@ -55,19 +55,28 @@ we want, and then clean up.
 
 Then execute the file for the GUI:
 ```
-python gui.py
+python pdfcombiner/gui.py
 ```
 
 I'm working on getting some executables set up.
 
 
 ## Next Steps
-* Add icon photo
-* create windows exe
 * provide links to the executables
 
 
-###Distribution
+### Install
+Have been working on creating executables via pyinstaller
+
+## Windows
+```
+pyinstaller gui.py -n pdfcombiner -F -w -i assets\pdfc_icon.ico
+```
+
+## Mac
+Coming soon?
+
+## Linux
 I've been using pyinstaller to create executables. Right now, the executable
 I'm creating on ubuntu works when ran from the command line, but double-clicking
 through the file explorer gives the following notification:

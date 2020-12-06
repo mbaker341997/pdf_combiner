@@ -1,5 +1,5 @@
 import os
-import pdfcombiner
+from pdfcombiner import combiner
 import PyPDF2
 import shutil
 
@@ -31,18 +31,18 @@ def setup_function():
         os.makedirs(TEST_EMPTY_PATH)
 
 def test_get_pdfs_in_dir_base_case():
-    pdfs = pdfcombiner.get_pdfs_in_dir(TEST_SUB_DIR_3_PATH)
+    pdfs = combiner.get_pdfs_in_dir(TEST_SUB_DIR_3_PATH)
     assert len(pdfs) == 1
     assert os.path.join(TEST_SUB_DIR_3_PATH, 'testpdf7.pdf') in pdfs
 
 
 def test_get_pdfs_in_dir_empty():
-    pdfs = pdfcombiner.get_pdfs_in_dir(TEST_EMPTY_PATH)
+    pdfs = combiner.get_pdfs_in_dir(TEST_EMPTY_PATH)
     assert len(pdfs) == 0
 
 
 def test_get_pdfs_in_dir_does_not_include_sub_dirs():
-    pdfs = pdfcombiner.get_pdfs_in_dir(TEST_INPUT_DIR)
+    pdfs = combiner.get_pdfs_in_dir(TEST_INPUT_DIR)
     assert len(pdfs) == 3
     assert os.path.join(TEST_INPUT_DIR, 'testpdf1.pdf') in pdfs
     assert os.path.join(TEST_INPUT_DIR, 'testpdf2.pdf') in pdfs
@@ -50,14 +50,14 @@ def test_get_pdfs_in_dir_does_not_include_sub_dirs():
 
 
 def test_get_pdfs_in_dir_does_not_include_non_pdfs():
-    pdfs = pdfcombiner.get_pdfs_in_dir(TEST_SUB_DIR_1_PATH)
+    pdfs = combiner.get_pdfs_in_dir(TEST_SUB_DIR_1_PATH)
     assert len(pdfs) == 2
     assert os.path.join(TEST_SUB_DIR_1_PATH, 'testpdf3.pdf') in pdfs
     assert os.path.join(TEST_SUB_DIR_1_PATH, 'testpdf4.pdf') in pdfs
 
 
 def test_get_child_dirs():
-    child_directories = pdfcombiner.get_child_dirs(TEST_INPUT_DIR)
+    child_directories = combiner.get_child_dirs(TEST_INPUT_DIR)
     assert len(child_directories) == 3
     assert TEST_SUB_DIR_1_PATH in child_directories
     assert TEST_SUB_DIR_2_PATH in child_directories
@@ -67,7 +67,7 @@ def test_get_child_dirs():
 def test_combine_all_pdfs():
     # I could programmatically create all my test input files, but ehhh I think it's easier to understand with the
     # files just there to be looked at
-    result_files = pdfcombiner.combine_all_pdfs(TEST_INPUT_DIR, TEST_OUTPUT_DIR)
+    result_files = combiner.combine_all_pdfs(TEST_INPUT_DIR, TEST_OUTPUT_DIR)
 
     # only 3 pdfs made
     assert len(result_files) == 3

@@ -1,9 +1,9 @@
 import os.path
-import pdfcombiner
 import platform
 import subprocess
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+from pdfcombiner import combiner, icon
 
 TITLE = 'PDF Combiner'
 SELECT_MESSAGE = 'Select'
@@ -32,6 +32,7 @@ class PdfCombiner(tk.Frame):
         self.pack(fill=tk.BOTH, expand=True)
         parent.wm_title(TITLE)
         parent.minsize(100, 10)
+        parent.iconphoto(False, tk.PhotoImage(data=icon.get_pdf_icon()))
 
         # styling
         self.style = ttk.Style()
@@ -42,7 +43,6 @@ class PdfCombiner(tk.Frame):
         self.help_style_key = "HelpBody.TLabel"
         self.style.configure(self.help_style_key, font='helvetica 16')
 
-        # TODO: file icon
 
         # Top Area - title and help button
         self.top_frame = ttk.Frame(self)
@@ -130,7 +130,7 @@ class PdfCombiner(tk.Frame):
             self.title_label[TEXT_KEY] = "Combining pdfs..."
             self.combinePdfsButton[STATE_KEY] = tk.DISABLED
             try:
-                result_files = pdfcombiner.combine_all_pdfs(self.source_directory_var.get(),
+                result_files = combiner.combine_all_pdfs(self.source_directory_var.get(),
                                                             self.destination_directory_var.get())
                 if len(result_files) > 0:
                     open_destination = messagebox.askyesno("Success!",
@@ -170,21 +170,21 @@ class PdfCombiner(tk.Frame):
                                      text=os.path.split(self.source_directory_var.get())[1],
                                      open=True)
             # display any pdfs in root
-            root_pdfs = pdfcombiner.get_pdfs_in_dir(self.source_directory_var.get())
+            root_pdfs = combiner.get_pdfs_in_dir(self.source_directory_var.get())
             for root_pdf in root_pdfs:
                 self.preview_tree.insert(SOURCE_IID,
                                          'end',
                                          text=os.path.split(root_pdf)[1])
 
             # get all its child directories
-            children = pdfcombiner.get_child_dirs(self.source_directory_var.get())
+            children = combiner.get_child_dirs(self.source_directory_var.get())
             for child in children:
                 self.preview_tree.insert(SOURCE_IID,
                                          'end',
                                          child,
                                          text=os.path.split(child)[1])
                 # any of its pdfs there
-                child_pdfs = pdfcombiner.get_pdfs_in_dir(child)
+                child_pdfs = combiner.get_pdfs_in_dir(child)
                 for child_pdf in child_pdfs:
                     self.preview_tree.insert(child,
                                              'end',
@@ -197,6 +197,7 @@ class PdfCombiner(tk.Frame):
         # New top-level
         help_window = tk.Toplevel()
         help_window.wm_title(HELP_TITLE)
+        help_window.iconphoto(False, tk.PhotoImage(data=icon.get_pdf_icon()))
 
         # Title
         help_title_label = ttk.Label(help_window, text=HELP_TITLE, style=self.title_style_key)
