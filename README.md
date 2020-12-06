@@ -55,8 +55,6 @@ python gui.py
 
 Styling Changes:
 * Add icon photo
-* Open the output folder
-* Add a help dialog box to explain what's happening 
 
 Distribution
 * Make sure the setup.py is set up correctly so that module is installable

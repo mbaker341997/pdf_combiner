@@ -1,48 +1,58 @@
+import os
 import pdfcombiner
+import platform
+import subprocess
 import tkinter as tk
-from os import path
 from tkinter import filedialog, messagebox, ttk
 
-TITLE = 'Pdf Combiner'
+TITLE = 'PDF Combiner'
 SELECT_MESSAGE = 'Select'
 SELECT_SOURCE_FOLDER_MESSAGE = 'Select Source Folder'
 SELECT_DESTINATION_FOLDER_MESSAGE = 'Select Output Folder'
 TEXT_KEY = 'text'
+STATE_KEY = 'state'
 PAD_X_AMOUNT = 10
 PAD_Y_AMOUNT = 5
 ENTRY_WIDTH = 75
 SOURCE_IID = 'source'
-WINDOW_BASE_WIDTH = 855
-WINDOW_BASE_HEIGHT = 393
-TITLE_STYLE_KEY = "CombinerTitle.TLabel"
+HELP_TITLE = "Help - PDF Combiner"
+HELP_WIDTH = 800
 
 
 class PdfCombiner(tk.Frame):
     """
     Control the state of the directories we choose from.
     """
+
     def __init__(self, parent):
         """
         Initialize the GUI with the necessary components
         """
         super().__init__(parent)
         self.pack(fill=tk.BOTH, expand=True)
-        parent.title(TITLE)
+        parent.wm_title(TITLE)
+        parent.minsize(100, 10)
 
         # styling
         self.style = ttk.Style()
-        self.style.configure(TITLE_STYLE_KEY, font='helvetica 24')
+        self.title_style_key = "CombinerTitle.TLabel"
+        self.style.configure(self.title_style_key, font='helvetica 24')
+        self.heading_style_key = "CombinerHeading.TLabel"
+        self.style.configure(self.heading_style_key, font='helvetica 20')
+        self.help_style_key = "HelpBody.TLabel"
+        self.style.configure(self.help_style_key, font='helvetica 16')
 
         # TODO: file icon
 
         # Top Area - title and help button
         self.top_frame = ttk.Frame(self)
-        self.top_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT*3)
+        self.top_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT * 3)
         # title labeling
-        self.title_label = ttk.Label(self.top_frame, text=TITLE, style=TITLE_STYLE_KEY)
+        self.title_label = ttk.Label(self.top_frame, text=TITLE, style=self.title_style_key)
         self.title_label.pack(side=tk.LEFT)
-        # TODO: help dialog
-        self.help_button = ttk.Button(self.top_frame, text="Help!")
+        self.help_button = ttk.Button(self.top_frame,
+                                      text="Help!",
+                                      command=self.help_popup)
         self.help_button.pack(side=tk.RIGHT)
         self.separator = ttk.Separator(self)
         self.separator.pack(fill=tk.X, padx=PAD_X_AMOUNT)
@@ -71,15 +81,12 @@ class PdfCombiner(tk.Frame):
             text='Combine PDFs',
             command=self.combine_the_pdfs
         )
-        self.combinePdfsButton.pack(fill=tk.BOTH, side=tk.BOTTOM, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
-
-        # set min size
-        parent.update()
-        parent.minsize(parent.winfo_width(), parent.winfo_height())
+        self.combinePdfsButton.pack(fill=tk.BOTH, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
 
     """
     Build a directory selection row.
     """
+
     def get_directory_selection_row(self, directory_var, directory_label_text, dialog_message):
         selection_frame = ttk.Frame(self)
         directory_label = ttk.Label(selection_frame,
@@ -96,12 +103,13 @@ class PdfCombiner(tk.Frame):
             command=lambda: self.get_directory(directory_var, dialog_message))
         selection_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
         directory_label.pack(side=tk.LEFT)
+        directory_entry.pack(side=tk.LEFT, padx=PAD_X_AMOUNT, fill=tk.X, expand=True)
         select_button.pack(side=tk.RIGHT)
-        directory_entry.pack(side=tk.RIGHT, padx=PAD_X_AMOUNT)
 
     """
     Get a directory and set the appropriate StringVar.
     """
+
     def get_directory(self, string_var, select_message):
         directory = filedialog.askdirectory(title=select_message, mustexist=True)
         if directory:
@@ -112,25 +120,45 @@ class PdfCombiner(tk.Frame):
     """
     Perform the actual pdf merging
     """
+
     def combine_the_pdfs(self):
-        if self.source_directory_var.get() is None:
+        if self.source_directory_var.get() is None or len(self.source_directory_var.get()) == 0:
             messagebox.showerror(SELECT_SOURCE_FOLDER_MESSAGE, "You must select a folder to read the pdfs from!")
-        elif self.destination_directory_var.get() is None:
+        elif self.destination_directory_var.get() is None or len(self.destination_directory_var.get()) == 0:
             messagebox.showerror(SELECT_DESTINATION_FOLDER_MESSAGE, "You must select a folder to save the pdfs in!")
         else:
-            result_files = pdfcombiner.combine_all_pdfs(self.source_directory_var.get(),
-                                                        self.destination_directory_var.get())
-            if len(result_files) > 0:
-                messagebox.showinfo("Success!", "We have successfully written combined pdf files to: {}".
-                                    format(self.destination_directory_var.get()))
-                # TODO: open results folder
-            else:
-                messagebox.showwarning("No pdfs found!", "We were not able to find any pdfs to combine in {}"
-                                       .format(self.source_directory_var.get()))
+            self.title_label[TEXT_KEY] = "Combining pdfs..."
+            self.combinePdfsButton[STATE_KEY] = tk.DISABLED
+            try:
+                result_files = pdfcombiner.combine_all_pdfs(self.source_directory_var.get(),
+                                                            self.destination_directory_var.get())
+                if len(result_files) > 0:
+                    open_destination = messagebox.askyesno("Success!",
+                                                           "We have successfully written combined pdf files to: {}\n"
+                                                           "Open destination folder?".
+                                                           format(self.destination_directory_var.get()),
+                                                           icon=messagebox.INFO)
+                    if open_destination:
+                        # Open results folder
+                        if platform.system() == "Windows":
+                            os.startfile(self.destination_directory_var.get())
+                        elif platform.system() == "Darwin":
+                            subprocess.Popen(["open", self.destination_directory_var.get()])
+                        else:
+                            subprocess.Popen(["xdg-open", self.destination_directory_var.get()])
+                else:
+                    messagebox.showwarning("No pdfs found!", "We were not able to find any pdfs to combine in {}"
+                                           .format(self.source_directory_var.get()))
+            except:
+                messagebox.showerror("Error", "An unexpected error occurred, please try again.")
+
+            self.title_label[TEXT_KEY] = TITLE
+            self.combinePdfsButton[STATE_KEY] = tk.NORMAL
 
     """
     Set the treeview previewing which files to aggregate
     """
+
     def set_preview_tree(self):
         # clear it out first
         self.preview_tree.delete(*self.preview_tree.get_children())
@@ -139,14 +167,14 @@ class PdfCombiner(tk.Frame):
             self.preview_tree.insert('',
                                      'end',
                                      SOURCE_IID,
-                                     text=path.split(self.source_directory_var.get())[1],
+                                     text=os.path.split(self.source_directory_var.get())[1],
                                      open=True)
             # display any pdfs in root
             root_pdfs = pdfcombiner.get_pdfs_in_dir(self.source_directory_var.get())
             for root_pdf in root_pdfs:
                 self.preview_tree.insert(SOURCE_IID,
                                          'end',
-                                         text=path.split(root_pdf)[1])
+                                         text=os.path.split(root_pdf)[1])
 
             # get all its child directories
             children = pdfcombiner.get_child_dirs(self.source_directory_var.get())
@@ -154,15 +182,53 @@ class PdfCombiner(tk.Frame):
                 self.preview_tree.insert(SOURCE_IID,
                                          'end',
                                          child,
-                                         text=path.split(child)[1])
+                                         text=os.path.split(child)[1])
                 # any of its pdfs there
                 child_pdfs = pdfcombiner.get_pdfs_in_dir(child)
                 for child_pdf in child_pdfs:
                     self.preview_tree.insert(child,
                                              'end',
-                                             text=path.split(child_pdf)[1])
+                                             text=os.path.split(child_pdf)[1])
+
+    """
+    Create a popup message to display help information
+    """
+    def help_popup(self):
+        # New top-level
+        help_window = tk.Toplevel()
+        help_window.wm_title(HELP_TITLE)
+
+        # Title
+        help_title_label = ttk.Label(help_window, text=HELP_TITLE, style=self.title_style_key)
+        help_title_label.pack(side=tk.TOP, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT*3)
+
+        # Actual Help Messages
+        what_heading = ttk.Label(help_window, text='What is this?', style=self.heading_style_key)
+        what_heading.pack(side=tk.TOP, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
+        what_descr = ttk.Label(help_window,
+                               text="PDF Combiner combines all pdfs of a directory into one file. "
+                                    "The title of that new file will be the directory_name.pdf",
+                               wraplength=HELP_WIDTH,
+                               style=self.help_style_key)
+        what_descr.pack(padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
+        how_heading = ttk.Label(help_window, text='How do I use it?', style=self.heading_style_key)
+        how_heading.pack(side=tk.TOP, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
+        how_descr = ttk.Label(help_window,
+                              text="Select a source folder to choose where to begin the pdf scan from and "
+                                   "PDF Combiner will combine the pdfs directly in that source folder "
+                                   "into one file, and then will merge the pdfs of each of its child directories "
+                                   "into their own files. It does not look more than one sub-directory deep. "
+                                   "Children, no grandchildren. Destination folder will be where your combined files "
+                                   "are stored. Both a source folder and destination folder must be chosen before "
+                                   "combining pdfs. Non-pdf files found in a folder under scan will be skipped.",
+                              wraplength=HELP_WIDTH,
+                              style=self.help_style_key)
+        how_descr.pack(padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
+        ok_button = ttk.Button(help_window, text="OK", command=help_window.destroy)
+        ok_button.pack(padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
+        help_window.mainloop()
 
 
-window = tk.Tk(className=TITLE)
+window = tk.Tk()
 pdf_combiner_gui = PdfCombiner(parent=window)
 pdf_combiner_gui.mainloop()
