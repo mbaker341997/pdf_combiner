@@ -64,5 +64,6 @@ I also made an executable for windows via [pyinstaller](https://pyinstaller.read
 pyinstaller gui.py -n pdfcombiner -F -w -i assets\pdfc_icon.ico
 ```
 
-Download link (you'll need to request access and your antivirus might complain):
-https://drive.google.com/file/d/123BN_fhBnOT-5wTWS9F-vA9a3g-S4G7m/view?usp=sharing
+## Releases
+
+[v1.0 (win_64)](https://github.com/mbaker341997/pdf_combiner/releases/tag/v1.0)
