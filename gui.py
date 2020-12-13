@@ -23,7 +23,6 @@ class PdfCombiner(tk.Frame):
     """
     Control the state of the directories we choose from.
     """
-
     def __init__(self, parent):
         """
         Initialize the GUI with the necessary components
@@ -31,41 +30,56 @@ class PdfCombiner(tk.Frame):
         super().__init__(parent)
         self.pack(fill=tk.BOTH, expand=True)
         parent.wm_title(TITLE)
-        parent.minsize(100, 10)
+        parent.minsize(200, 10)
         parent.iconphoto(False, tk.PhotoImage(data=icon.get_pdf_icon()))
 
         # styling
-        self.style = ttk.Style()
+        style = ttk.Style()
         self.title_style_key = "CombinerTitle.TLabel"
-        self.style.configure(self.title_style_key, font='helvetica 24')
+        style.configure(self.title_style_key, font='helvetica 24')
         self.heading_style_key = "CombinerHeading.TLabel"
-        self.style.configure(self.heading_style_key, font='helvetica 20')
+        style.configure(self.heading_style_key, font='helvetica 20')
         self.help_style_key = "HelpBody.TLabel"
-        self.style.configure(self.help_style_key, font='helvetica 16')
-
+        style.configure(self.help_style_key, font='helvetica 16')
 
         # Top Area - title and help button
-        self.top_frame = ttk.Frame(self)
-        self.top_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT * 3)
+        top_frame = ttk.Frame(self)
+        top_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT * 3)
         # title labeling
-        self.title_label = ttk.Label(self.top_frame, text=TITLE, style=self.title_style_key)
+        self.title_label = ttk.Label(top_frame, text=TITLE, style=self.title_style_key)
         self.title_label.pack(side=tk.LEFT)
-        self.help_button = ttk.Button(self.top_frame,
+        help_button = ttk.Button(top_frame,
                                       text="Help!",
                                       command=self.help_popup)
-        self.help_button.pack(side=tk.RIGHT)
-        self.separator = ttk.Separator(self)
-        self.separator.pack(fill=tk.X, padx=PAD_X_AMOUNT)
+        help_button.pack(side=tk.RIGHT)
+        separator = ttk.Separator(self)
+        separator.pack(fill=tk.X, padx=PAD_X_AMOUNT)
 
         # Source folder selection
         self.source_directory_var = tk.StringVar()
         self.get_directory_selection_row(self.source_directory_var, 'Source Folder:', SELECT_SOURCE_FOLDER_MESSAGE)
 
+        # Optional checkboxes for jpegs and xps file conversion
+        filetypes_frame = ttk.Frame(self)
+        filetypes_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
+
+        filetypes_label = ttk.Label(filetypes_frame, text='Non-pdf filetypes to also merge: ')
+        filetypes_label.pack(side=tk.LEFT)
+
+        self.include_jpg_var = tk.BooleanVar()
+        jpg_checkbox = ttk.Checkbutton(filetypes_frame, text="JPG", variable=self.include_jpg_var, command=self.set_preview_tree)
+        jpg_checkbox.pack(side=tk.LEFT)
+        
+        self.include_xps_var = tk.BooleanVar()
+        xps_checkbox = ttk.Checkbutton(filetypes_frame, text="XPS", variable=self.include_xps_var, command=self.set_preview_tree)
+        xps_checkbox.pack(side=tk.LEFT)
+
+
         # Get child directories and display
-        self.preview_frame = ttk.Frame(self)
-        self.preview_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
-        self.preview_tree = ttk.Treeview(self.preview_frame, show='tree')
-        y_bar = tk.Scrollbar(self.preview_frame, orient=tk.VERTICAL, command=self.preview_tree.yview)
+        preview_frame = ttk.Frame(self)
+        preview_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
+        self.preview_tree = ttk.Treeview(preview_frame, show='tree')
+        y_bar = tk.Scrollbar(preview_frame, orient=tk.VERTICAL, command=self.preview_tree.yview)
         self.preview_tree.configure(yscroll=y_bar.set)
         y_bar.pack(side=tk.RIGHT, fill=tk.Y)
         self.preview_tree.pack(fill=tk.X)
@@ -86,7 +100,6 @@ class PdfCombiner(tk.Frame):
     """
     Build a directory selection row.
     """
-
     def get_directory_selection_row(self, directory_var, directory_label_text, dialog_message):
         selection_frame = ttk.Frame(self)
         directory_label = ttk.Label(selection_frame,
@@ -109,7 +122,6 @@ class PdfCombiner(tk.Frame):
     """
     Get a directory and set the appropriate StringVar.
     """
-
     def get_directory(self, string_var, select_message):
         directory = filedialog.askdirectory(title=select_message, mustexist=True)
         if directory:
@@ -120,7 +132,6 @@ class PdfCombiner(tk.Frame):
     """
     Perform the actual pdf merging
     """
-
     def combine_the_pdfs(self):
         if self.source_directory_var.get() is None or len(self.source_directory_var.get()) == 0:
             messagebox.showerror(SELECT_SOURCE_FOLDER_MESSAGE, "You must select a folder to read the pdfs from!")
@@ -130,8 +141,10 @@ class PdfCombiner(tk.Frame):
             self.title_label[TEXT_KEY] = "Combining pdfs..."
             self.combinePdfsButton[STATE_KEY] = tk.DISABLED
             try:
-                result_files = combiner.combine_all_pdfs(self.source_directory_var.get(),
-                                                            self.destination_directory_var.get())
+                result_files = combiner.combine_all_docs(self.source_directory_var.get(),
+                                                         self.destination_directory_var.get(),
+                                                         include_jpg=self.include_jpg_var.get(), 
+                                                         include_xps=self.include_xps_var.get())
                 if len(result_files) > 0:
                     open_destination = messagebox.askyesno("Success!",
                                                            "We have successfully written combined pdf files to: {}\n"
@@ -158,7 +171,6 @@ class PdfCombiner(tk.Frame):
     """
     Set the treeview previewing which files to aggregate
     """
-
     def set_preview_tree(self):
         # clear it out first
         self.preview_tree.delete(*self.preview_tree.get_children())
@@ -170,7 +182,9 @@ class PdfCombiner(tk.Frame):
                                      text=os.path.split(self.source_directory_var.get())[1],
                                      open=True)
             # display any pdfs in root
-            root_pdfs = combiner.get_pdfs_in_dir(self.source_directory_var.get())
+            root_pdfs = combiner.get_files_to_merge_in_dir(self.source_directory_var.get(), 
+                                                           include_jpg=self.include_jpg_var.get(), 
+                                                           include_xps=self.include_xps_var.get())
             for root_pdf in root_pdfs:
                 self.preview_tree.insert(SOURCE_IID,
                                          'end',
@@ -184,7 +198,9 @@ class PdfCombiner(tk.Frame):
                                          child,
                                          text=os.path.split(child)[1])
                 # any of its pdfs there
-                child_pdfs = combiner.get_pdfs_in_dir(child)
+                child_pdfs = combiner.get_files_to_merge_in_dir(child, 
+                                                                include_jpg=self.include_jpg_var.get(), 
+                                                                include_xps=self.include_xps_var.get())
                 for child_pdf in child_pdfs:
                     self.preview_tree.insert(child,
                                              'end',

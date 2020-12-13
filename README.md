@@ -1,6 +1,6 @@
 ## PDF Combiner
 
-Uses tkinter and PyPDF2
+Uses tkinter, and PyMuPDF
 
 ## Purpose
 Purpose:
@@ -56,7 +56,7 @@ we want, and then clean up.
 
 Then execute the file for the GUI:
 ```
-python pdfcombiner/gui.py
+python gui.py
 ```
 
 I also made an executable for windows via [pyinstaller](https://pyinstaller.readthedocs.io/en/stable/usage.html_)
