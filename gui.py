@@ -23,6 +23,7 @@ HELP_TITLE = "Help - PDF Combiner"
 HELP_WIDTH = 800
 TASK_FINISHED_MESSAGE = "Task Finished!"
 TASK_ERRORED_MESSAGE = "Task Errored Out!"
+NO_FILES_FOUND_MESSAGE = "No Files Found!"
 PROGRESS_BAR_LENGTH = 300
 
 
@@ -67,8 +68,16 @@ class PdfCombiner(tk.Frame):
         separator.pack(fill=tk.X, padx=PAD_X_AMOUNT)
 
         # Source folder selection
-        self.source_directory_var = tk.StringVar()
-        self.get_directory_selection_row(self.source_directory_var, 'Source Folder:', SELECT_SOURCE_FOLDER_MESSAGE)
+        self.source_directory_var = tk.StringVar(self)
+        source_frame = ttk.Frame(self)
+        self.source_button = ttk.Button(
+            source_frame,
+            text=SELECT_MESSAGE,
+            command=lambda: self.get_directory(self.source_directory_var, SELECT_SOURCE_FOLDER_MESSAGE))
+        self.get_directory_selection_row(source_frame,
+                                         self.source_button, 
+                                         self.source_directory_var,                                  
+                                         'Source Folder:')
 
         # Optional checkboxes for jpegs and xps file conversion
         filetypes_frame = ttk.Frame(self)
@@ -77,11 +86,11 @@ class PdfCombiner(tk.Frame):
         filetypes_label = ttk.Label(filetypes_frame, text='Non-pdf filetypes to also merge: ')
         filetypes_label.pack(side=tk.LEFT)
 
-        self.include_jpg_var = tk.BooleanVar()
+        self.include_jpg_var = tk.BooleanVar(self)
         jpg_checkbox = ttk.Checkbutton(filetypes_frame, text="JPG", variable=self.include_jpg_var, command=self.set_preview_tree)
         jpg_checkbox.pack(side=tk.LEFT)
         
-        self.include_xps_var = tk.BooleanVar()
+        self.include_xps_var = tk.BooleanVar(self)
         xps_checkbox = ttk.Checkbutton(filetypes_frame, text="XPS", variable=self.include_xps_var, command=self.set_preview_tree)
         xps_checkbox.pack(side=tk.LEFT)
 
@@ -96,13 +105,19 @@ class PdfCombiner(tk.Frame):
         self.preview_tree.pack(fill=tk.X)
 
         # Destination folder selection
-        self.destination_directory_var = tk.StringVar()
-        self.get_directory_selection_row(self.destination_directory_var,
-                                         'Destination Folder:',
-                                         SELECT_DESTINATION_FOLDER_MESSAGE)
+        self.destination_directory_var = tk.StringVar(self)
+        destination_frame = ttk.Frame(self)
+        self.destination_button = ttk.Button(
+            destination_frame,
+            text=SELECT_MESSAGE,
+            command=lambda: self.get_directory(self.destination_directory_var, SELECT_DESTINATION_FOLDER_MESSAGE))
+        self.get_directory_selection_row(destination_frame,
+                                         self.destination_button,
+                                         self.destination_directory_var,
+                                         'Destination Folder:')
 
         # Value to track the progress 
-        self.progress_var = tk.IntVar()
+        self.progress_var = tk.IntVar(self)
         self.num_files = 0
 
         # Track progress
@@ -127,8 +142,11 @@ class PdfCombiner(tk.Frame):
     """
     Build a directory selection row.
     """
-    def get_directory_selection_row(self, directory_var, directory_label_text, dialog_message):
-        selection_frame = ttk.Frame(self)
+    def get_directory_selection_row(self, 
+                                    selection_frame,
+                                    directory_button, 
+                                    directory_var, 
+                                    directory_label_text):
         directory_label = ttk.Label(selection_frame,
                                     text=directory_label_text)
         directory_entry = tk.Entry(selection_frame,
@@ -137,14 +155,10 @@ class PdfCombiner(tk.Frame):
                                    state=tk.DISABLED,
                                    disabledbackground='white',
                                    disabledforeground='black')
-        select_button = ttk.Button(
-            selection_frame,
-            text=SELECT_MESSAGE,
-            command=lambda: self.get_directory(directory_var, dialog_message))
         selection_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
         directory_label.pack(side=tk.LEFT)
         directory_entry.pack(side=tk.LEFT, padx=PAD_X_AMOUNT, fill=tk.X, expand=True)
-        select_button.pack(side=tk.RIGHT)
+        directory_button.pack(side=tk.RIGHT)
 
     """
     Get a directory and set the appropriate StringVar.
@@ -167,7 +181,7 @@ class PdfCombiner(tk.Frame):
         else:
             try:
                 directories_list = [self.source_directory_var.get()] + combiner.get_child_dirs(self.source_directory_var.get())
-
+                self.toggle_button_disable(True)
                 CombinerTask(self.signal_queue,
                              directories_list,
                              self.destination_directory_var.get(), 
@@ -187,11 +201,12 @@ class PdfCombiner(tk.Frame):
         try:
             msg = self.signal_queue.get(0)
             print(msg)
-            # clear progress value
+            # clear progress value and reenable buttons
             self.progress_var.set(0)
             self.progress_bar[VALUE_KEY] = 0
-            if msg == TASK_FINISHED_MESSAGE:
-                self.progress_window.withdraw()
+            self.progress_window.withdraw()
+            self.toggle_button_disable(False)
+            if msg == TASK_FINISHED_MESSAGE:       
                 # End Task
                 open_destination = messagebox.askyesno("Success!", 
                     "We have successfully merged the files. Open destination folder?",
@@ -204,8 +219,10 @@ class PdfCombiner(tk.Frame):
                         subprocess.Popen(["open", self.destination_directory_var.get()])
                     else:
                         subprocess.Popen(["xdg-open", self.destination_directory_var.get()])
-            else:
+            elif msg == TASK_ERRORED_MESSAGE:
                 messagebox.showerror("Error!", "Encountered an error when trying to combine pdfs.")
+            elif msg == NO_FILES_FOUND_MESSAGE:
+                messagebox.showerror("No Files Found!", "No files were found to combine in your directory!")
         except queue.Empty:
             self.parent.after(100, self.process_queue)
         
@@ -254,6 +271,19 @@ class PdfCombiner(tk.Frame):
         self.num_files = file_count
                      
     
+    # toggle whether the combine and select directory labels are disabled
+    def toggle_button_disable(self, disabled):
+        if disabled:
+            print("buttons disabled")
+            self.source_button[STATE_KEY] = tk.DISABLED 
+            self.destination_button[STATE_KEY] = tk.DISABLED 
+            self.combinePdfsButton[STATE_KEY] = tk.DISABLED         
+        else:
+            print("buttons enabled")
+            self.source_button[STATE_KEY] = tk.NORMAL
+            self.destination_button[STATE_KEY] = tk.NORMAL
+            self.combinePdfsButton[STATE_KEY] = tk.NORMAL
+    
     """
     Create a popup message to display help information
     """
@@ -291,7 +321,6 @@ class PdfCombiner(tk.Frame):
         how_descr.pack(padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
         ok_button = ttk.Button(help_window, text="OK", command=help_window.destroy)
         ok_button.pack(padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
-        help_window.mainloop()
 
 
 class CombinerTask(threading.Thread):
@@ -318,7 +347,10 @@ class CombinerTask(threading.Thread):
             print("Finished combining all pdfs. Written files: ")
             for result_file in result_files:
                 print("* {}".format(result_file))
-            self.signal_queue.put(TASK_FINISHED_MESSAGE)
+            if len(result_files) > 0:
+                self.signal_queue.put(TASK_FINISHED_MESSAGE)
+            else:
+                self.signal_queue.put(NO_FILES_FOUND_MESSAGE)
         except Exception as e:
             print(e)
             self.signal_queue.put(TASK_ERRORED_MESSAGE)
