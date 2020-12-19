@@ -1,6 +1,6 @@
 ## PDF Combiner
 
-Uses tkinter, and PyMuPDF
+Uses tkinter, and [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/document.html)
 
 ## Purpose
 Purpose:

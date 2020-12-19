@@ -40,7 +40,7 @@ def convert_to_pdf(input_filepath):
 
 
 # Given a directory, find all its eligible documents and merge
-def combine_docs_in_directory(source_directory, destination_path, include_jpg=False, include_xps=False):
+def combine_docs_in_directory(source_directory, destination_path, include_jpg=False, include_xps=False, progress_var=None):
     output_filename = "{}.pdf".format(path.split(source_directory)[1])
     print("Reading pdfs from: {}".format(source_directory))
     files_to_merge = get_files_to_merge_in_dir(source_directory, include_jpg, include_xps)
@@ -57,7 +57,11 @@ def combine_docs_in_directory(source_directory, destination_path, include_jpg=Fa
                 merged_file.insertPDF(converted_file)
             else:
                 merged_file.insertPDF(fitz_file_to_merge)
+            fitz_file_to_merge.close()
+            if progress_var:
+                progress_var.set(progress_var.get() + 1)
         merged_file.save(path.join(destination_path, output_filename))
+        merged_file.close()
         print("Successfully written: {}".format(output_filename))
         result = output_filename
     else:

@@ -1,6 +1,9 @@
 import os.path
 import platform
+import queue
 import subprocess
+import threading
+import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from pdfcombiner import combiner, icon
@@ -11,12 +14,16 @@ SELECT_SOURCE_FOLDER_MESSAGE = 'Select Source Folder'
 SELECT_DESTINATION_FOLDER_MESSAGE = 'Select Output Folder'
 TEXT_KEY = 'text'
 STATE_KEY = 'state'
+VALUE_KEY = 'value'
 PAD_X_AMOUNT = 10
 PAD_Y_AMOUNT = 5
 ENTRY_WIDTH = 75
 SOURCE_IID = 'source'
 HELP_TITLE = "Help - PDF Combiner"
 HELP_WIDTH = 800
+TASK_FINISHED_MESSAGE = "Task Finished!"
+TASK_ERRORED_MESSAGE = "Task Errored Out!"
+PROGRESS_BAR_LENGTH = 300
 
 
 class PdfCombiner(tk.Frame):
@@ -27,11 +34,15 @@ class PdfCombiner(tk.Frame):
         """
         Initialize the GUI with the necessary components
         """
-        super().__init__(parent)
+        self.parent = parent
+        super().__init__(self.parent)
         self.pack(fill=tk.BOTH, expand=True)
-        parent.wm_title(TITLE)
-        parent.minsize(200, 10)
-        parent.iconphoto(False, tk.PhotoImage(data=icon.get_pdf_icon()))
+        self.parent.wm_title(TITLE)
+        self.parent.minsize(200, 10)
+        self.parent.iconphoto(False, tk.PhotoImage(data=icon.get_pdf_icon()))
+
+        # Queue to signal when our async process is done
+        self.signal_queue = queue.Queue()
 
         # styling
         style = ttk.Style()
@@ -89,6 +100,22 @@ class PdfCombiner(tk.Frame):
         self.get_directory_selection_row(self.destination_directory_var,
                                          'Destination Folder:',
                                          SELECT_DESTINATION_FOLDER_MESSAGE)
+
+        # Value to track the progress 
+        self.progress_var = tk.IntVar()
+        self.num_files = 0
+
+        # Track progress
+        self.progress_window = tk.Toplevel()
+        self.progress_window.wm_title('Combining Pdfs')
+        self.progress_window.iconphoto(self.progress_window, tk.PhotoImage(data=icon.get_pdf_icon()))
+        self.progress_label = ttk.Label(self.progress_window, text='Combining Pdfs...')
+        self.progress_label.pack()
+        self.progress_bar = ttk.Progressbar(self.progress_window, orient=tk.HORIZONTAL, length=PROGRESS_BAR_LENGTH, mode='determinate')
+        self.progress_bar.pack(padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT, fill=tk.X)
+        self.progress_bar['maximum'] = PROGRESS_BAR_LENGTH
+        self.progress_window.withdraw()
+        
         # Combine pdfs button
         self.combinePdfsButton = ttk.Button(
             self,
@@ -138,35 +165,50 @@ class PdfCombiner(tk.Frame):
         elif self.destination_directory_var.get() is None or len(self.destination_directory_var.get()) == 0:
             messagebox.showerror(SELECT_DESTINATION_FOLDER_MESSAGE, "You must select a folder to save the pdfs in!")
         else:
-            self.title_label[TEXT_KEY] = "Combining pdfs..."
-            self.combinePdfsButton[STATE_KEY] = tk.DISABLED
             try:
-                result_files = combiner.combine_all_docs(self.source_directory_var.get(),
-                                                         self.destination_directory_var.get(),
-                                                         include_jpg=self.include_jpg_var.get(), 
-                                                         include_xps=self.include_xps_var.get())
-                if len(result_files) > 0:
-                    open_destination = messagebox.askyesno("Success!",
-                                                           "We have successfully written combined pdf files to: {}\n"
-                                                           "Open destination folder?".
-                                                           format(self.destination_directory_var.get()),
-                                                           icon=messagebox.INFO)
-                    if open_destination:
-                        # Open results folder
-                        if platform.system() == "Windows":
-                            os.startfile(self.destination_directory_var.get())
-                        elif platform.system() == "Darwin":
-                            subprocess.Popen(["open", self.destination_directory_var.get()])
-                        else:
-                            subprocess.Popen(["xdg-open", self.destination_directory_var.get()])
-                else:
-                    messagebox.showwarning("No pdfs found!", "We were not able to find any pdfs to combine in {}"
-                                           .format(self.source_directory_var.get()))
+                directories_list = [self.source_directory_var.get()] + combiner.get_child_dirs(self.source_directory_var.get())
+
+                CombinerTask(self.signal_queue,
+                             directories_list,
+                             self.destination_directory_var.get(), 
+                             self.include_jpg_var.get(), 
+                             self.include_xps_var.get(),
+                             self.progress_var).start()
+                self.progress_window.deiconify()
+                self.parent.after(100, self.process_queue)
             except:
                 messagebox.showerror("Error", "An unexpected error occurred, please try again.")
 
-            self.title_label[TEXT_KEY] = TITLE
-            self.combinePdfsButton[STATE_KEY] = tk.NORMAL
+    
+    def process_queue(self):
+        if self.num_files > 0:
+            self.progress_bar[VALUE_KEY] = (self.progress_var.get() / self.num_files) * PROGRESS_BAR_LENGTH
+            self.progress_window.update()
+        try:
+            msg = self.signal_queue.get(0)
+            print(msg)
+            # clear progress value
+            self.progress_var.set(0)
+            self.progress_bar[VALUE_KEY] = 0
+            if msg == TASK_FINISHED_MESSAGE:
+                self.progress_window.withdraw()
+                # End Task
+                open_destination = messagebox.askyesno("Success!", 
+                    "We have successfully merged the files. Open destination folder?",
+                    icon=messagebox.INFO)
+                if open_destination:
+                    # Open results folder
+                    if platform.system() == "Windows":
+                        os.startfile(self.destination_directory_var.get())
+                    elif platform.system() == "Darwin":
+                        subprocess.Popen(["open", self.destination_directory_var.get()])
+                    else:
+                        subprocess.Popen(["xdg-open", self.destination_directory_var.get()])
+            else:
+                messagebox.showerror("Error!", "Encountered an error when trying to combine pdfs.")
+        except queue.Empty:
+            self.parent.after(100, self.process_queue)
+        
 
     """
     Set the treeview previewing which files to aggregate
@@ -174,6 +216,7 @@ class PdfCombiner(tk.Frame):
     def set_preview_tree(self):
         # clear it out first
         self.preview_tree.delete(*self.preview_tree.get_children())
+        file_count = 0 # total number of files we plan on combining, used to track progress
         if self.source_directory_var.get():
             # source directory we selected as the root
             self.preview_tree.insert('',
@@ -189,6 +232,7 @@ class PdfCombiner(tk.Frame):
                 self.preview_tree.insert(SOURCE_IID,
                                          'end',
                                          text=os.path.split(root_pdf)[1])
+            file_count = len(root_pdfs)
 
             # get all its child directories
             children = combiner.get_child_dirs(self.source_directory_var.get())
@@ -205,7 +249,11 @@ class PdfCombiner(tk.Frame):
                     self.preview_tree.insert(child,
                                              'end',
                                              text=os.path.split(child_pdf)[1])
-
+                
+                file_count = file_count + len(child_pdfs)
+        self.num_files = file_count
+                     
+    
     """
     Create a popup message to display help information
     """
@@ -245,6 +293,35 @@ class PdfCombiner(tk.Frame):
         ok_button.pack(padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
         help_window.mainloop()
 
+
+class CombinerTask(threading.Thread):
+    def __init__(self, signal_queue, source_directories, destination, include_jpg, include_xps, progress_var):
+        threading.Thread.__init__(self)
+        self.signal_queue = signal_queue
+        self.directories = source_directories
+        self.destination = destination
+        self.include_jpg = include_jpg
+        self.include_xps = include_xps
+        self.progress_var = progress_var
+
+    def run(self):
+        try:
+            result_files = []
+            # combine pdfs in first layer of children
+            for directory in self.directories:
+                print("Combining files in: {}".format(directory))
+                result_file = combiner.combine_docs_in_directory(directory, self.destination,  self.include_jpg, self.include_xps, self.progress_var)
+                if result_file:                   
+                    result_files.append(result_file)
+
+            # print results to stdout
+            print("Finished combining all pdfs. Written files: ")
+            for result_file in result_files:
+                print("* {}".format(result_file))
+            self.signal_queue.put(TASK_FINISHED_MESSAGE)
+        except Exception as e:
+            print(e)
+            self.signal_queue.put(TASK_ERRORED_MESSAGE)
 
 window = tk.Tk()
 pdf_combiner_gui = PdfCombiner(parent=window)
