@@ -30,7 +30,6 @@ class PdfCombiner(tk.Frame):
     """
     Control the state of the directories we choose from.
     """
-
     def __init__(self, parent):
         """
         Initialize the GUI with the necessary components
@@ -144,7 +143,6 @@ class PdfCombiner(tk.Frame):
     """
     Build a directory selection row.
     """
-
     def get_directory_selection_row(self,
                                     selection_frame,
                                     directory_button,
@@ -166,7 +164,6 @@ class PdfCombiner(tk.Frame):
     """
     Get a directory and set the appropriate StringVar.
     """
-
     def get_directory(self, string_var, select_message):
         directory = filedialog.askdirectory(title=select_message, mustexist=True)
         if directory:
@@ -177,7 +174,6 @@ class PdfCombiner(tk.Frame):
     """
     Perform the actual pdf merging
     """
-
     def combine_the_pdfs(self):
         if self.source_directory_var.get() is None or len(self.source_directory_var.get()) == 0:
             messagebox.showerror(SELECT_SOURCE_FOLDER_MESSAGE, "You must select a folder to read the pdfs from!")
@@ -234,7 +230,6 @@ class PdfCombiner(tk.Frame):
     """
     Set the treeview previewing which files to aggregate
     """
-
     def set_preview_tree(self):
         # clear it out first
         self.preview_tree.delete(*self.preview_tree.get_children())
@@ -291,7 +286,6 @@ class PdfCombiner(tk.Frame):
     """
     Create a popup message to display help information
     """
-
     def help_popup(self):
         # New top-level
         help_window = tk.Toplevel()
