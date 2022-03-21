@@ -4,7 +4,7 @@ import fitz
 PDF_EXTENSION = ".pdf"
 XPS_EXTENSION = ".xps"
 JPG_EXTENSION = ".jpg"
-JPEG_EXTENSION = ".jpeg" # what a disaster for the human race
+JPEG_EXTENSION = ".jpeg"  # what a disaster for the human race
 
 
 # returns filenames with path of all pdf files in directory

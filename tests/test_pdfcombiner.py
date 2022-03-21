@@ -20,6 +20,7 @@ TEST_SUB_DIR_3_FILENAME = 'sub_dir_3.pdf'
 
 TEST_OUTPUT_DIR = os.path.join('tests', 'output_pdfs')
 
+
 def setup_function():
     # Create the destination if it doesn't exist
     if not os.path.exists(TEST_OUTPUT_DIR):
@@ -28,6 +29,7 @@ def setup_function():
     # Create the empty directory if it doesn't exist
     if not os.path.exists(TEST_EMPTY_PATH):
         os.makedirs(TEST_EMPTY_PATH)
+
 
 def test_get_files_to_merge_base_case():
     pdfs = combiner.get_files_to_merge_in_dir(TEST_SUB_DIR_2_PATH)
@@ -67,6 +69,7 @@ def test_get_files_to_merge_will_accept_jpg_files():
     assert os.path.join(TEST_SUB_DIR_1_PATH, 'BIG.jpg') in files_to_merge
     assert os.path.join(TEST_SUB_DIR_1_PATH, 'color.jpg') in files_to_merge
 
+
 def test_get_files_to_merge_will_accept_xps_files():
     files_to_merge = combiner.get_files_to_merge_in_dir(TEST_SUB_DIR_3_PATH, 
                                                         include_jpg=False,
@@ -88,18 +91,19 @@ def test_get_child_dirs():
 
 def test_combine_docs_in_directory_skips_empty_directory():
     result = combiner.combine_docs_in_directory(TEST_EMPTY_PATH, TEST_OUTPUT_DIR)
-    assert result == None
+    assert result is None
 
 
 def test_combine_docs_in_directory_skips_sub_directories():
     result = combiner.combine_docs_in_directory(TEST_SUB_DIR_2_PATH, TEST_OUTPUT_DIR)
     assert result == TEST_SUB_DIR_2_FILENAME
-     # contains 5 and 6
+    # contains 5 and 6
     validate_pdf_file(TEST_SUB_DIR_2_FILENAME, num_pages=2)
 
 
 def test_combine_docs_in_directory_pdf_only():
-    result = combiner.combine_docs_in_directory(TEST_SUB_DIR_1_PATH, TEST_OUTPUT_DIR, include_jpg=False, include_xps=False)
+    result = combiner.combine_docs_in_directory(TEST_SUB_DIR_1_PATH, TEST_OUTPUT_DIR, include_jpg=False,
+                                                include_xps=False)
 
     assert result == TEST_SUB_DIR_1_FILENAME
     # contains 3 and 4
@@ -107,7 +111,8 @@ def test_combine_docs_in_directory_pdf_only():
 
 
 def test_combine_docs_in_directory_image_conversion():
-    result = combiner.combine_docs_in_directory(TEST_SUB_DIR_1_PATH, TEST_OUTPUT_DIR, include_jpg=True, include_xps=False)
+    result = combiner.combine_docs_in_directory(TEST_SUB_DIR_1_PATH, TEST_OUTPUT_DIR, include_jpg=True,
+                                                include_xps=False)
 
     assert result == TEST_SUB_DIR_1_FILENAME
     # contains 3, 4, basic, basicJPEG, BIG, and color
@@ -115,7 +120,8 @@ def test_combine_docs_in_directory_image_conversion():
 
 
 def test_combine_docs_in_directory_xps_conversion():
-    result = combiner.combine_docs_in_directory(TEST_SUB_DIR_3_PATH, TEST_OUTPUT_DIR, include_jpg=False, include_xps=True)
+    result = combiner.combine_docs_in_directory(TEST_SUB_DIR_3_PATH, TEST_OUTPUT_DIR, include_jpg=False,
+                                                include_xps=True)
 
     assert result == TEST_SUB_DIR_3_FILENAME
     # sub_dir_1 contains 7, singlepage.xps, and multipage.xps (which has 2 pages)

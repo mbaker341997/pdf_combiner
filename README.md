@@ -67,3 +67,5 @@ pyinstaller gui.py -n pdfcombiner -F -w -i assets\pdfc_icon.ico
 ## Releases
 
 [v1.0 (win_64)](https://github.com/mbaker341997/pdf_combiner/releases/tag/v1.0)
+
+[v1.1 (win_64)](https://github.com/mbaker341997/pdf_combiner/releases/tag/v1.1)
