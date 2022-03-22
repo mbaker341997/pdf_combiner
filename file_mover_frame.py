@@ -25,7 +25,6 @@ class FileMoverFrame(tk.Frame):
         # move button
         self.fire_button = RowButton(self, text='Move Files', command=self.move_files)
 
-        # TODO: Help button explaining what this is doing
         # TODO: loading bar
         # TODO: load test with something like 10,000 files
 
@@ -33,6 +32,7 @@ class FileMoverFrame(tk.Frame):
         source_directory = self.source_directory_var.get()
         if source_directory:
             directory_mover.move_files(source_directory)
+            self.set_preview_tree()
             helper_methods.open_folder(source_directory)
 
     def set_preview_tree(self):

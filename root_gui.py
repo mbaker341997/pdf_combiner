@@ -1,14 +1,10 @@
 import tkinter as tk
 from file_mover_frame import FileMoverFrame
+from guicomponents import config, help_popup, styles
 from tkinter import ttk
 from utils import icon
 
-# TODO: Cram this into a constants file
 TITLE = 'PDF Handler'
-PAD_X_AMOUNT = 10
-PAD_Y_AMOUNT = 5
-
-SOURCE_IID = 'source'
 
 
 class RootGui(tk.Frame):
@@ -16,23 +12,19 @@ class RootGui(tk.Frame):
         super().__init__(parent)
         self.pack(fill=tk.BOTH, expand=True)
 
-        # TODO: init styling in its own method, put the keys and configs into a big map or something
         # styling
-        style = ttk.Style()
-        self.title_style_key = "CombinerTitle.TLabel"
-        style.configure(self.title_style_key, font='helvetica 24')
-        self.heading_style_key = "CombinerHeading.TLabel"
-        style.configure(self.heading_style_key, font='helvetica 20')
-        self.help_style_key = "HelpBody.TLabel"
-        style.configure(self.help_style_key, font='helvetica 16')
+        styles.init_styles()
 
-        # TODO: its own lil class?
         # Top area - title
         top_frame = ttk.Frame(self)
-        top_frame.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT * 3)
+        top_frame.pack(fill=tk.X, padx=config.PAD_X_AMOUNT, pady=config.PAD_Y_AMOUNT * 3)
         # title labeling
-        self.title_label = ttk.Label(top_frame, text=TITLE, style=self.title_style_key)
+        self.title_label = ttk.Label(top_frame, text=TITLE, style=styles.TITLE_STYLE_KEY)
         self.title_label.pack(side=tk.LEFT)
+        help_button = ttk.Button(top_frame,
+                                 text="Help!",
+                                 command=help_popup.show_help_popup)
+        help_button.pack(side=tk.RIGHT)
 
         # tab control
         tab_control = ttk.Notebook(self)
