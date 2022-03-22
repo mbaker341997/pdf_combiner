@@ -5,7 +5,8 @@ import subprocess
 import threading
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from pdfcombiner import combiner, icon
+from business import combiner
+from utils import icon
 
 TITLE = 'PDF Combiner'
 SELECT_MESSAGE = 'Select'

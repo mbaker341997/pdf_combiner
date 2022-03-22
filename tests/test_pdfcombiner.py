@@ -1,6 +1,6 @@
 import os
 import fitz
-from pdfcombiner import combiner
+from business import combiner
 import shutil
 
 
