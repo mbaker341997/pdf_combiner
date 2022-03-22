@@ -7,7 +7,7 @@ SELECT_MESSAGE = 'Select'
 
 
 class DirectorySelectRow(tk.Frame):
-    def __init__(self, parent, directory_var, label_text, select_message, on_select_func=lambda *a, **k: None):
+    def __init__(self, parent, directory_var, label_text, select_message, on_select_func=None):
         # initialize
         super().__init__(parent)
         self.directory_var = directory_var
@@ -38,11 +38,9 @@ class DirectorySelectRow(tk.Frame):
         entry.pack(side=tk.LEFT, padx=PAD_X_AMOUNT, fill=tk.X, expand=True)
         button.pack(side=tk.RIGHT)
 
-    """
-    Get a directory and set the appropriate StringVar.
-    """
+    # Get a directory and set the appropriate StringVar.
     def get_directory(self):
         directory = filedialog.askdirectory(title=self.select_message, mustexist=True)
         if directory:
             self.directory_var.set(directory)
-            self.on_select_func()
+            self.on_select_func() if self.on_select_func else None

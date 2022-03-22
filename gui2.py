@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 from os import path, scandir
-from pdfcombiner import icon
-from guicomponents import DirectorySelectRow, TreeViewFrame
+from pdfcombiner import directory_mover, icon
+from guicomponents import *
 
 # TODO: Cram this into a constants file
 TITLE = 'PDF Handler'
@@ -45,8 +45,7 @@ class RootGui(tk.Frame):
 
         ttk.Label(combiner_tab, text="Pdf Combiner").grid(column=0, row=0, padx=30, pady=30)
 
-        # Step 1 - The Directory Combiner
-        # Let it choose the input directory
+        # choose the input directory
         self.source_directory_var = tk.StringVar(self)
         DirectorySelectRow(mover_tab,
                            self.source_directory_var,
@@ -54,10 +53,14 @@ class RootGui(tk.Frame):
                            'Select Source Folder',
                            self.set_preview_tree)
 
-        # TODO: Treeview showing the files to be moved
+        # treeview showing the files to be moved
         self.tree_view_frame = TreeViewFrame(mover_tab)
-        # TODO: Fire button
+
+        # move button
+        self.fire_button = RowButton(self, text='Move Files', command=self.move_files)
+
         # TODO: Help button explaining what this is doing
+        # TODO: loading bar
 
         # Step 2 - The Pdf Combiner Move
         # TODO Package components into a big gui frame
@@ -66,10 +69,11 @@ class RootGui(tk.Frame):
 
         # TODO: test test test!
 
+    def move_files(self):
+        if self.source_directory_var.get():
+            directory_mover.move_files(self.source_directory_var.get())
+
     def set_preview_tree(self):
-        # TODO: make this fill the treeview
-        print(self.source_directory_var.get())
-        print("oh wow it works!")
         preview_tree = self.tree_view_frame.preview_tree
         preview_tree.delete(*preview_tree.get_children())
         source_dir = self.source_directory_var.get()
