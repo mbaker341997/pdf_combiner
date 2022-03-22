@@ -1,12 +1,15 @@
 import tkinter as tk
 from tkinter import ttk
+from os import path, scandir
 from pdfcombiner import icon
-from guicomponents import DirectorySelectRow
+from guicomponents import DirectorySelectRow, TreeViewFrame
 
 # TODO: Cram this into a constants file
-TITLE = 'PDF Combiner'
+TITLE = 'PDF Handler'
 PAD_X_AMOUNT = 10
 PAD_Y_AMOUNT = 5
+
+SOURCE_IID = 'source'
 
 
 class RootGui(tk.Frame):
@@ -34,20 +37,25 @@ class RootGui(tk.Frame):
 
         # tab control
         tab_control = ttk.Notebook(self)
-        tab1 = ttk.Frame(tab_control)
-        tab2 = ttk.Frame(tab_control)
-        tab_control.add(tab1, text='Tab 1')
-        tab_control.add(tab2, text='Tab 2')
+        mover_tab = ttk.Frame(tab_control)
+        combiner_tab = ttk.Frame(tab_control)
+        tab_control.add(mover_tab, text='File Mover')
+        tab_control.add(combiner_tab, text='Pdf Combiner')
         tab_control.pack(expand=1, fill="both")
 
-        ttk.Label(tab1, text="Directory Mover").grid(column=0, row=0, padx=30, pady=30)
-        ttk.Label(tab2, text="Pdf Combiner").grid(column=0, row=0, padx=30, pady=30)
+        ttk.Label(combiner_tab, text="Pdf Combiner").grid(column=0, row=0, padx=30, pady=30)
 
         # Step 1 - The Directory Combiner
         # Let it choose the input directory
         self.source_directory_var = tk.StringVar(self)
-        DirectorySelectRow(self, self.source_directory_var, 'Source Folder:', 'Select Source Folder', self.dummy)
-        # TODO: Treeview showing the files to be combined
+        DirectorySelectRow(mover_tab,
+                           self.source_directory_var,
+                           'Source Folder:',
+                           'Select Source Folder',
+                           self.set_preview_tree)
+
+        # TODO: Treeview showing the files to be moved
+        self.tree_view_frame = TreeViewFrame(mover_tab)
         # TODO: Fire button
         # TODO: Help button explaining what this is doing
 
@@ -58,9 +66,24 @@ class RootGui(tk.Frame):
 
         # TODO: test test test!
 
-    def dummy(self):
+    def set_preview_tree(self):
+        # TODO: make this fill the treeview
         print(self.source_directory_var.get())
         print("oh wow it works!")
+        preview_tree = self.tree_view_frame.preview_tree
+        preview_tree.delete(*preview_tree.get_children())
+        source_dir = self.source_directory_var.get()
+        if source_dir:
+            # source directory we selected as the root
+            preview_tree.insert('',
+                                tk.END,
+                                SOURCE_IID,
+                                text=path.split(source_dir)[1],
+                                open=True)
+            # all root files or directories
+            with scandir(source_dir) as it:
+                for entry in it:
+                    preview_tree.insert(SOURCE_IID, tk.END, text=entry.name)
 
 
 window = tk.Tk()

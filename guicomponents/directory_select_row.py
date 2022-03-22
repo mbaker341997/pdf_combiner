@@ -1,9 +1,8 @@
 import tkinter as tk
+from .config import PAD_X_AMOUNT, PAD_Y_AMOUNT
 from tkinter import filedialog, ttk
 
 ENTRY_WIDTH = 75
-PAD_X_AMOUNT = 10
-PAD_Y_AMOUNT = 5
 SELECT_MESSAGE = 'Select'
 
 
