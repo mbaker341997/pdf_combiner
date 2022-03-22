@@ -56,7 +56,7 @@ we want, and then clean up.
 
 Then execute the file for the GUI:
 ```
-python gui.py
+python root_gui.py
 ```
 
 I also made an executable for windows via [pyinstaller](https://pyinstaller.readthedocs.io/en/stable/usage.html_)

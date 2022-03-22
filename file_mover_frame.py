@@ -26,6 +26,12 @@ class FileMoverFrame(tk.Frame):
         self.fire_button = RowButton(self, text='Move Files', command=self.move_files)
 
         # TODO: loading bar
+        # progress window with the title, photo, label, and bar
+        # withdraw the progress window
+        # have the queue that stores the signal of whether we're done or errored
+        # have the task that takes the queue and a function as input
+        # have the process queue method that calls itself on a timer, updates progress length,
+        # clears and withdraws window when it's done, gives popup option to open directory
         # TODO: load test with something like 10,000 files
 
     def move_files(self):

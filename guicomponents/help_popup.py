@@ -34,6 +34,7 @@ def show_help_popup():
     help_window = tk.Toplevel()
     help_window.wm_title(title)
     help_window.iconphoto(False, tk.PhotoImage(data=icon.get_pdf_icon()))
+    help_window.minsize(200, 10)
 
     # Title
     help_title_label = ttk.Label(help_window, text=title, style=TITLE_STYLE_KEY)

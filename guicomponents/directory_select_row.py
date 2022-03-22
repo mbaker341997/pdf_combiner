@@ -27,16 +27,13 @@ class DirectorySelectRow(tk.Frame):
                          disabledforeground='black')
 
         # button
-        button = ttk.Button(
-            self,
-            text='Select',
-            command=lambda: self.get_directory())
+        self.button = ttk.Button(self, text='Select', command=self.get_directory)
 
         # pack everything
         self.pack(fill=tk.X, padx=PAD_X_AMOUNT, pady=PAD_Y_AMOUNT)
         label.pack(side=tk.LEFT)
         entry.pack(side=tk.LEFT, padx=PAD_X_AMOUNT, fill=tk.X, expand=True)
-        button.pack(side=tk.RIGHT)
+        self.button.pack(side=tk.RIGHT)
 
     # Get a directory and set the appropriate StringVar.
     def get_directory(self):
