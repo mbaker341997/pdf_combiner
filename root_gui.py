@@ -33,9 +33,10 @@ class RootGui(tk.Frame):
         tab_control.add(FileMoverFrame(tab_control), text='File Mover')
         tab_control.pack(expand=1, fill="both")
 
-        # TODO: load test with a large number of files
-        # TODO: record demo video
+        # TODO: have help button link to the README
         # TODO: create executable for windows
+        # TODO: record demo video
+
 
 
 window = tk.Tk()

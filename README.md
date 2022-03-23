@@ -52,7 +52,17 @@ running this program, the directory will now have two subdirectories
 DEMO VIDEO: coming soon!
 
 ## Running
-Install the requirements:
+Create a venv inside of the root of the project (venv should be a child directory of pdfcombiner)
+```
+python3 -m venv venv
+```
+
+Activate it 
+```
+source venv/bin/activate
+```
+
+Install the requirements (optionally upgrade some dependencies by adding `--upgrade` flag):
 ```
 pip install -r requirements.txt
 ```
@@ -63,7 +73,7 @@ python -m pytest -s
 ```
 
 This will combine the test pdfs, validate that the page amounts are what
-we want, and then clean up.
+we want, and then clean up. It also performs some tests of the file mover
 
 
 Then execute the file for the GUI:

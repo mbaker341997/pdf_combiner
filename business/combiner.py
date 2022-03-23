@@ -36,11 +36,15 @@ def get_child_dirs(root_directory):
 def convert_to_pdf(input_filepath):
     print("Converting: {} to pdf".format(input_filepath))
     input_doc = fitz.open(input_filepath)
-    return input_doc.convertToPDF()
+    return input_doc.convert_to_pdf()
 
 
 # Given a directory, find all its eligible documents and merge
-def combine_docs_in_directory(source_directory, destination_path, include_jpg=False, include_xps=False, progress_var=None):
+def combine_docs_in_directory(source_directory,
+                              destination_path,
+                              include_jpg=False,
+                              include_xps=False,
+                              progress_var=None):
     output_filename = "{}.pdf".format(path.split(source_directory)[1])
     print("Reading pdfs from: {}".format(source_directory))
     files_to_merge = get_files_to_merge_in_dir(source_directory, include_jpg, include_xps)
@@ -52,11 +56,11 @@ def combine_docs_in_directory(source_directory, destination_path, include_jpg=Fa
             # if file isn't a pdf, then convert to bytes
             if not fitz_file_to_merge.isPDF:
                 print("Converting: {} to pdf".format(file_to_merge))
-                converted_file_bytes = fitz_file_to_merge.convertToPDF()
+                converted_file_bytes = fitz_file_to_merge.convert_to_pdf()
                 converted_file = fitz.open("pdf", converted_file_bytes)
-                merged_file.insertPDF(converted_file)
+                merged_file.insert_pdf(converted_file)
             else:
-                merged_file.insertPDF(fitz_file_to_merge)
+                merged_file.insert_pdf(fitz_file_to_merge)
             fitz_file_to_merge.close()
             if progress_var:
                 progress_var.set(progress_var.get() + 1)
