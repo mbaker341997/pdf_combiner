@@ -1,9 +1,10 @@
 import tkinter as tk
-from business import directory_mover
-from guicomponents import config, DirectorySelectRow, ProgressBar, RowButton, TreeViewFrame
+from business import mover
+from guicomponents import DirectorySelectRow, ProgressBar, RowButton, TreeViewFrame
+from guicomponents.config import *
+from utils.helper_methods import prompt_to_open_folder
 from os import path, scandir
 from tkinter import messagebox
-from utils import helper_methods
 
 SELECT_SOURCE_FOLDER_MESSAGE = 'Select Source Folder'
 SOURCE_IID = 'source'
@@ -21,61 +22,59 @@ class FileMoverFrame(tk.Frame):
                                                        SELECT_SOURCE_FOLDER_MESSAGE,
                                                        self.set_preview_tree)
 
-        # treeview showing the files to be moved
+        # tree-view showing the files to be moved
         self.tree_view_frame = TreeViewFrame(self)
 
-        # map of task outcomes to functions. These execute *after* the progress bar has closed
-        task_outcome_func_map = {
-            config.TASK_FINISHED_MESSAGE: self.on_task_complete,
-            config.TASK_ERROR_MESSAGE: self.on_task_error
-        }
-
         self.progress_bar = ProgressBar(self,
-                                        validate_func=self.validate_before_move,
                                         task_func=self.move_files,
-                                        task_outcome_func_map=task_outcome_func_map,
+                                        task_outcome_func_map=self.get_msg_func_map(),
                                         progress_title="Moving Files",
                                         progress_text="Moving files...")
 
         # move button
-        self.move_button = RowButton(self, text='Move Files', command=self.progress_bar.perform_action)
+        self.move_button = RowButton(self, text='Move Files', command=self.move_button_onclick)
 
         # TODO: load test with something like 10,000 files
 
-    def validate_before_move(self):
+    def move_button_onclick(self):
+        # make sure we have a source directory
         if not self.source_directory_var.get():
             messagebox.showerror(SELECT_SOURCE_FOLDER_MESSAGE, "You must select a folder to find the files to move!")
             return False
         else:
-            return True
+            self.progress_bar.perform_action()
 
+    # task to run asynchronously for ProgressBar
     def move_files(self, signal_queue, progress_var):
         try:
             # Disable the buttons so as not to cause issues
-            self.directory_select_row.button[config.STATE_KEY] = tk.DISABLED
-            self.move_button[config.STATE_KEY] = tk.DISABLED
+            self.directory_select_row.button[STATE_KEY] = tk.DISABLED
+            self.move_button[STATE_KEY] = tk.DISABLED
 
             # move the files
-            directory_mover.move_files(self.source_directory_var.get(), progress_var)
+            mover.move_files(self.source_directory_var.get(), progress_var)
             # signal completion
-            signal_queue.put(config.TASK_FINISHED_MESSAGE)
+            signal_queue.put(TASK_FINISHED_MESSAGE)
         except Exception as e:
             print(e)
-            signal_queue.put(config.TASK_ERROR_MESSAGE)
+            signal_queue.put(TASK_ERROR_MESSAGE)
+        finally:
+            self.reset_buttons_and_tree()
 
-    def on_task_complete(self):
-        self.reset_buttons_and_tree()
-        helper_methods.prompt_to_open_folder(self.source_directory_var.get(),
-                                             message_text="We have successfully moved the files. Open folder to view?")
-
-    def on_task_error(self):
-        self.reset_buttons_and_tree()
-        messagebox.showerror("Error!", "Encountered an error when trying to combine pdfs.")
+    # map of task outcomes to functions. These execute *after* the progress bar has closed
+    def get_msg_func_map(self):
+        return {
+            TASK_FINISHED_MESSAGE: lambda: prompt_to_open_folder(self.source_directory_var.get(),
+                                                                 message_text="We have successfully moved the files. "
+                                                                              "Open folder to view?"),
+            TASK_ERROR_MESSAGE: lambda: messagebox.showerror("Error!",
+                                                             "Encountered an error when trying to combine pdfs.")
+        }
 
     def reset_buttons_and_tree(self):
         self.set_preview_tree()
-        self.directory_select_row.button[config.STATE_KEY] = tk.NORMAL
-        self.move_button[config.STATE_KEY] = tk.NORMAL
+        self.directory_select_row.button[STATE_KEY] = tk.NORMAL
+        self.move_button[STATE_KEY] = tk.NORMAL
 
     def set_preview_tree(self):
         preview_tree = self.tree_view_frame.preview_tree

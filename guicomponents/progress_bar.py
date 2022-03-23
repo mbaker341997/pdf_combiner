@@ -7,7 +7,6 @@ from utils import icon
 
 PROGRESS_BAR_LENGTH = 300
 VALUE_KEY = 'value'
-STATE_KEY = 'state'
 
 
 class ProgressBar:
@@ -15,7 +14,6 @@ class ProgressBar:
 
     def __init__(self,
                  parent,
-                 validate_func=lambda: True,
                  task_func=lambda q: q.put(config.TASK_FINISHED_MESSAGE),
                  task_outcome_func_map=None,
                  progress_title="Working",
@@ -50,19 +48,16 @@ class ProgressBar:
             task_outcome_func_map = {}
         self.msg_to_func_map = task_outcome_func_map
 
-        # function that validates that we're ready to proceed with task (allows for fast-fails
-        self.validate_func = validate_func
-
         # function that executes asynchronously, updates progress, and puts value in signal queue when it's done
         self.task_func = task_func
 
+    # function runs at an interval that updates the progress bar and checks signal queue to see if the task is done yet
     def process_queue(self):
         if self.progress_goal > 0:
             self.progress_bar[VALUE_KEY] = (self.progress_var.get() / self.progress_goal) * PROGRESS_BAR_LENGTH
             self.progress_window.update()
         try:
             msg = self.signal_queue.get(False)
-            print(msg)
             # clear progress value
             self.progress_var.set(0)
             self.progress_bar[VALUE_KEY] = 0
@@ -77,11 +72,12 @@ class ProgressBar:
             # nothing in signal queue yet, wait 100 ms and execute method again
             self.parent.after(100, self.process_queue)
 
+    # Kicks off the rendering of the progress bar and the async task that updates its value.
+    # Parent invokes this function, on button click, toggle, or whatever
     def perform_action(self):
-        if self.validate_func():
-            CombinerTask(self.signal_queue, self.progress_var, self.task_func).start()
-            self.progress_window.deiconify()
-            self.parent.after(100, self.process_queue)
+        CombinerTask(self.signal_queue, self.progress_var, self.task_func).start()
+        self.progress_window.deiconify()
+        self.parent.after(100, self.process_queue)
 
 
 class CombinerTask(threading.Thread):
