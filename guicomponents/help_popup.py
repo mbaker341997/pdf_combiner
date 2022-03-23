@@ -61,8 +61,8 @@ def show_help_popup():
                             how_text="Select the directory that has the files you want to have moved. The files will "
                                      "display in the little tree view below. THen press the button and all the files"
                                      "will be moved into their new directories.")
-    tab_control.add(mover_frame, text='File Mover')
     tab_control.add(combiner_frame, text='Pdf Combiner')
+    tab_control.add(mover_frame, text='File Mover')
     tab_control.pack(expand=1, fill="both")
 
     # ok button to close

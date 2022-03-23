@@ -7,6 +7,7 @@ SELECT_MESSAGE = 'Select'
 
 
 class DirectorySelectRow(tk.Frame):
+    """Row Frame designed to allow selection of a directory"""
     def __init__(self, parent, directory_var, label_text, select_message, on_select_func=None):
         # initialize
         super().__init__(parent)

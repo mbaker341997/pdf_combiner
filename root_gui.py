@@ -29,16 +29,15 @@ class RootGui(tk.Frame):
 
         # tab control
         tab_control = ttk.Notebook(self)
-        tab_control.add(FileMoverFrame(tab_control), text='File Mover')
         tab_control.add(PdfCombinerFrame(tab_control), text='Pdf Combiner')
+        tab_control.add(FileMoverFrame(tab_control), text='File Mover')
         tab_control.pack(expand=1, fill="both")
 
         # Step 2 - The Pdf Combiner Move
-        # TODO Package components into a big gui frame
-        # TODO pull out common components
-        # TODO merge both of these into a common root gui
-
+        # TODO: replace help with just opening a link to the README
+        # TODO: perform more consolidations
         # TODO: test test test!
+        # TODO: fix the documentation
 
 
 window = tk.Tk()
@@ -47,3 +46,4 @@ window.minsize(200, 10)
 window.iconphoto(False, tk.PhotoImage(data=icon.get_pdf_icon()))
 root_gui = RootGui(parent=window)
 root_gui.mainloop()
+

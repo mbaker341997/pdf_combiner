@@ -7,7 +7,7 @@ import time
 PREFIX_PATTERN = re.compile(r'^\w{7}(?=[\.|-|_])')
 
 
-def move_files(directory_string, progress=0):
+def move_files(directory_string, progress_var=None):
     folders = set()
     output_directory = f'{directory_string}/output_{time.time_ns()}'
     os.mkdir(output_directory)
@@ -28,4 +28,5 @@ def move_files(directory_string, progress=0):
                     shutil.copyfile(entry.path, f'{absolute_path}/{entry.name}')
                 else:
                     print(f'Filename did not match pattern: {entry.name}')
-            progress += 1
+            if progress_var:
+                progress_var.set(progress_var.get() + 1)
