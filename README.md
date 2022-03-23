@@ -2,7 +2,7 @@
 
 Uses tkinter, and [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/document.html)
 
-## Purpose
+## Pdf Combiner
 Purpose:
 * Given a folder filled with pdfs, merge all the pdfs into one
 * Merged pdf filename will be the same as the directory name (so all the
@@ -39,6 +39,18 @@ time going down a rabbit hole. I'm willing to change this in the
 future perhaps, but for now keeping it simple.
 
 DEMO VIDEO: [https://www.youtube.com/watch?v=4EEbaHv9m1o](https://www.youtube.com/watch?v=4EEbaHv9m1o)
+
+## File Mover (in progress)
+Purpose:
+* Move all files with 7 character prefix + delimiter of ".", "-", "_" in a given directory
+into a subdirectory titled after the prefix
+* For example, in a directory with files "1234567.1.txt", "1234567.2.txt", and "7654321.txt", after
+running this program, the directory will now have two subdirectories
+** Subdirectory titled "1234567" with files "1234567.1.txt", "1234567.2.txt"
+** Subdirectory titled "7654321" with files "7654321.1.txt"
+
+DEMO VIDEO: coming soon!
+
 ## Running
 Install the requirements:
 ```
@@ -59,9 +71,9 @@ Then execute the file for the GUI:
 python root_gui.py
 ```
 
-I also made an executable for windows via [pyinstaller](https://pyinstaller.readthedocs.io/en/stable/usage.html_)
+I also made an executable for windows via [pyinstaller](https://pyinstaller.readthedocs.io/en/stable/usage.html)
 ```
-pyinstaller gui.py -n pdfcombiner -F -w -i assets\pdfc_icon.ico
+pyinstaller root_gui.py -n pdfhandler -F -w -i assets\pdfc_icon.ico
 ```
 
 ## Releases
@@ -69,3 +81,5 @@ pyinstaller gui.py -n pdfcombiner -F -w -i assets\pdfc_icon.ico
 [v1.0 (win_64)](https://github.com/mbaker341997/pdf_combiner/releases/tag/v1.0)
 
 [v1.1 (win_64)](https://github.com/mbaker341997/pdf_combiner/releases/tag/v1.1)
+
+**Version 2.0 with support for the file mover coming soon!**

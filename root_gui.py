@@ -33,11 +33,9 @@ class RootGui(tk.Frame):
         tab_control.add(FileMoverFrame(tab_control), text='File Mover')
         tab_control.pack(expand=1, fill="both")
 
-        # Step 2 - The Pdf Combiner Move
-        # TODO: replace help with just opening a link to the README
-        # TODO: perform more consolidations
-        # TODO: test test test!
-        # TODO: fix the documentation
+        # TODO: load test with a large number of files
+        # TODO: record demo video
+        # TODO: create executable for windows
 
 
 window = tk.Tk()

@@ -34,8 +34,6 @@ class FileMoverFrame(tk.Frame):
         # move button
         self.move_button = RowButton(self, text='Move Files', command=self.move_button_onclick)
 
-        # TODO: load test with something like 10,000 files
-
     def move_button_onclick(self):
         # make sure we have a source directory
         if not self.source_directory_var.get():
