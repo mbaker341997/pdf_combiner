@@ -97,4 +97,4 @@ pyinstaller root_gui.py -n pdfhandler -F -w -i assets\pdfc_icon.ico
 
 [v1.1 (win_64)](https://github.com/mbaker341997/pdf_combiner/releases/tag/v1.1)
 
-**Version 2.0 with support for the file mover coming soon!**
+[v2.0 (win_64)](https://github.com/mbaker341997/pdf_combiner/releases/tag/v2.0)
