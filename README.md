@@ -54,12 +54,17 @@ DEMO VIDEO: coming soon!
 ## Running
 Create a venv inside of the root of the project (venv should be a child directory of pdfcombiner)
 ```
-python3 -m venv venv
+python -m venv venv
 ```
 
 Activate it 
 ```
 source venv/bin/activate
+```
+
+or on windows
+```
+venv\Scripts\activate.bat
 ```
 
 Install the requirements (optionally upgrade some dependencies by adding `--upgrade` flag):
