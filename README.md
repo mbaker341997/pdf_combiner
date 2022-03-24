@@ -1,4 +1,4 @@
-## PDF Combiner
+## PDF Handler
 
 Uses tkinter, and [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/document.html)
 
@@ -40,7 +40,7 @@ future perhaps, but for now keeping it simple.
 
 DEMO VIDEO: [https://www.youtube.com/watch?v=4EEbaHv9m1o](https://www.youtube.com/watch?v=4EEbaHv9m1o)
 
-## File Mover (in progress)
+## File Mover
 Purpose:
 * Move all files with 7 character prefix + delimiter of ".", "-", "_" in a given directory
 into a subdirectory titled after the prefix

@@ -1,11 +1,16 @@
 import tkinter as tk
 from file_mover_frame import FileMoverFrame
-from guicomponents import config, help_popup, styles
+from guicomponents import config, styles
 from pdf_combiner_frame import PdfCombinerFrame
 from tkinter import ttk
 from utils import icon
+import webbrowser
 
 TITLE = 'PDF Handler'
+ANCHOR_MAP = {
+    0: 'pdf-combiner',
+    1: 'file-mover'
+}
 
 
 class RootGui(tk.Frame):
@@ -24,19 +29,21 @@ class RootGui(tk.Frame):
         self.title_label.pack(side=tk.LEFT)
         help_button = ttk.Button(top_frame,
                                  text="Help!",
-                                 command=help_popup.show_help_popup)
+                                 command=self.open_help)
         help_button.pack(side=tk.RIGHT)
 
         # tab control
-        tab_control = ttk.Notebook(self)
-        tab_control.add(PdfCombinerFrame(tab_control), text='Pdf Combiner')
-        tab_control.add(FileMoverFrame(tab_control), text='File Mover')
-        tab_control.pack(expand=1, fill="both")
+        self.tab_control = ttk.Notebook(self)
+        self.tab_control.add(PdfCombinerFrame(self.tab_control), text='Pdf Combiner')
+        self.tab_control.add(FileMoverFrame(self.tab_control), text='File Mover')
+        self.tab_control.pack(expand=1, fill="both")
 
-        # TODO: have help button link to the README
         # TODO: create executable for windows
         # TODO: record demo video
 
+    def open_help(self):
+        anchor = ANCHOR_MAP.get(self.tab_control.index(tk.CURRENT), 'pdf-handler')
+        webbrowser.open(f'https://github.com/mbaker341997/pdf_combiner/blob/mainline/README.md#{anchor}')
 
 
 window = tk.Tk()
