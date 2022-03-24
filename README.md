@@ -2,7 +2,7 @@
 
 Uses tkinter, and [PyMuPDF](https://pymupdf.readthedocs.io/en/latest/document.html)
 
-## Pdf Combiner
+## PDF Combiner
 Purpose:
 * Given a folder filled with pdfs, merge all the pdfs into one
 * Merged pdf filename will be the same as the directory name (so all the
@@ -42,12 +42,12 @@ DEMO VIDEO: [https://www.youtube.com/watch?v=4EEbaHv9m1o](https://www.youtube.co
 
 ## File Mover
 Purpose:
-* Move all files with 7 character prefix + delimiter of ".", "-", "_" in a given directory
+* Move all files with 7 character prefix + delimiter of `.`, `-`, `_` in a given directory
 into a subdirectory titled after the prefix
-* For example, in a directory with files "1234567.1.txt", "1234567.2.txt", and "7654321.txt", after
+* For example, in a directory with files `1234567.1.txt`, `1234567.2.txt`, and `7654321.txt`, after
 running this program, the directory will now have two subdirectories
-** Subdirectory titled "1234567" with files "1234567.1.txt", "1234567.2.txt"
-** Subdirectory titled "7654321" with files "7654321.1.txt"
+  * Subdirectory titled `1234567` with files `1234567.1.txt`, `1234567.2.txt`
+  * Subdirectory titled `7654321` with files `7654321.1.txt`
 
 DEMO VIDEO: coming soon!
 
