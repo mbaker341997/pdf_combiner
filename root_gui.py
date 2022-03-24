@@ -38,9 +38,6 @@ class RootGui(tk.Frame):
         self.tab_control.add(FileMoverFrame(self.tab_control), text='File Mover')
         self.tab_control.pack(expand=1, fill="both")
 
-        # TODO: create executable for windows
-        # TODO: record demo video
-
     def open_help(self):
         anchor = ANCHOR_MAP.get(self.tab_control.index(tk.CURRENT), 'pdf-handler')
         webbrowser.open(f'https://github.com/mbaker341997/pdf_combiner/blob/mainline/README.md#{anchor}')

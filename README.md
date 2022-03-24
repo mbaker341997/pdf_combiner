@@ -49,7 +49,7 @@ running this program, the directory will now have two subdirectories
   * Subdirectory titled `1234567` with files `1234567.1.txt`, `1234567.2.txt`
   * Subdirectory titled `7654321` with files `7654321.1.txt`
 
-DEMO VIDEO: coming soon!
+DEMO VIDEO: [https://www.youtube.com/watch?v=hlYIIiUVlzY](https://www.youtube.com/watch?v=hlYIIiUVlzY)
 
 ## Running
 Create a venv inside of the root of the project (venv should be a child directory of pdfcombiner)
